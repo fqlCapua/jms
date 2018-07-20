@@ -279,8 +279,7 @@ export default {
 
    },
   methods: {
- 
-  
+    
     dmimgs() {
       //店面照片
       
@@ -339,24 +338,22 @@ export default {
         this.changeObj = param;
         
       }  
-     
+  
       this.closeAaflag(param)
     },
     closeAaflag(param) {
-          
-          this.aaflag = false;
+         
             let form={};
-              
-            form.contents=param.notice;
+             form.contents=param.notice;
             form.followStatus=param.status;
             form.follower=this.jmsinfo.name;
-            form.gmtModify=new Date().toLocaleString().split(" ");
+           // form.gmtModify=new Date().toLocaleString().split(" ")[0];
             form.storeCode= this.jmsinfo.storeCode;
-  
+ 
       //点击确定按钮
-      if (param == 1) {
+     
         //网络请求
-        fetch(host + "/agent/proxy/addStoreFollow",{
+        fetch(host+"/agent/proxy/addStoreFollow",{
           method:"POST",
           headers:{
             "Content-Type":"application/json"
@@ -364,13 +361,19 @@ export default {
           body:JSON.stringify(form)
         }).then((res)=>res.text())
         .then(res => {
+          var res=JSON.parse(res);
+     
           if (res.status == 1) {
-            this.asflag = true;
+            //this.asflag = true;
+            
+                Toast("修改成功");  
           } else {
-            Toast("状态修改失败");
+             Toast("修改失败");  
+         console.log(res);
           }
         });
-      }
+      
+       this.aaflag = false;
     },
     closeAsflag() {
       //关闭成功弹窗
