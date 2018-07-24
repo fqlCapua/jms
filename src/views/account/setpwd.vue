@@ -5,13 +5,7 @@
       <my-header :headerParam="headerParam"></my-header>
       <!---->
       <div id="setpwd">
-        <div class="line">
-          <div class="line-con clearfix">
-            <i class="icon1"></i>
-            <i class="icon2" @click="cleardata('phone')"></i>
-            <input  v-on:blur="vertifyPhone(phone)" v-model="phone" maxlength="11" type="tel" placeholder="请输入手机号"/>
-          </div>
-        </div>
+        
         <div class="line">
           <div class="line-con clearfix">
             <i class="icon3"></i>
@@ -43,6 +37,7 @@
   import MyHeader from '@/components/header'
   import {fetchPostData,host} from '@/api'
   import {Toast} from 'mint-ui';
+  import Vue from "vue";
   import qs from 'qs'
   export default{
     data(){
@@ -93,23 +88,36 @@
       },
       //确定修改密码
       sure () {
-        let phone_reg = /^1[3456789]\d{9}$/
-        if (!this.phone || !this.oldpwd || !this.newpwd1 || !this.newpwd2) {
-          this.toast('请全部输入')
+        if(this.newpwd1!=this.newpwd2){
+          Toast("两次输入不一致");
+          return false;
+        }
+        if ( !this.oldpwd || !this.newpwd1 || !this.newpwd2) {
+          this.toast('请完善信息')
           return false
         }
-        if (!phone_reg.test(this.phone)) {
-          this.toast('手机号码格式错误')
-          return false
-        }
+      
         if (this.newpwd1.length < 6 || this.newpwd2.length < 6) {
           this.toast('密码最少6位')
           return false
         }
-        fetchPostData(host+'/api/updatePassword', qs.stringify({oldPwd: this.oldpwd, newPwd: this.newpwd1})).then((data) => {
-          if (data.code == 0) {
-            this.toast('修改成功')
-            this.$router.go(-1)
+        var _that=this;
+        var form=new FormData();
+       
+        form.append("newPassword",this.newpwd2);
+        form.append("oldPassword",this.oldpwd);
+        fetch(host+'/agent/proxy/updatePwd',{
+          method:"POST",
+        headers:{
+          "x-token":this.$store.state.token
+        },
+        body:form})
+        .then((res)=>res.text())
+        .then((res) => {
+          var res=JSON.parse(res);
+          if (res.status == 1) {
+             Toast('修改成功')
+            _that.$router.go(-1)
           }
         })
       },

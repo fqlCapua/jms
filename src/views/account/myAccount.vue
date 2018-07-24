@@ -10,8 +10,8 @@
         <div class="userinfo">
           <div class="con margin-center">
             <router-link to="/myInfo" class="userphoto margin-center">{{myFirstName}}</router-link>
-            <p class="name">{{userInfo.name}}</p>
-            <p class="uid">工号：{{userInfo.userNum}}</p>
+            <p class="name">{{userInfo.realName}}</p>
+            <p class="uid">工号：{{userInfo.jobNumber}}</p>
           </div>
         </div>
         <!--加盟商数据-->
@@ -90,6 +90,31 @@
       }
     },
     components: {MyFooter, MyHeader},
+    mounted: function () {
+      //获取用户信息
+      this.getUserInfo()
+      //获取我的加盟商
+      //this.getMyJms()
+      //根据日期获取加盟商
+      //let date = moment().format('YYYY-MM-DD');
+    //  this.getMyJmsByDate(date, date)
+      //
+    },
+    computed:{
+      myFirstName () {
+        //获取名字 第一个字
+        let v = this.userInfo.name
+        if (!v) {
+          return ''
+        }
+        v = v.toString()
+        return v.charAt(0)
+      },
+      myJmsAll () {
+        //我的加盟商
+        return parseInt(this.myJms.TOTAL) + parseInt(this.myJms.TOTAL_FORMAL)
+      }
+    },
     methods: {
       initChart () {
         // 初始化表图
@@ -190,13 +215,9 @@
         chart.setOption(option);
       },
       getUserInfo () {  //用户信息
-        fetchPostData(host+'/api/queryUser', {}).then((data) => {
-          if (data.code == 0) {
-            this.userInfo = data.user;
-          } else {
-
-          }
-        })
+        var info=JSON.parse(this.getSession("us"));
+        this.userInfo=info;
+        
       },
       getMyJms () {  //我的加盟商
         fetchPostData(host+'/api/queryMyMers', {}).then((data) => {
@@ -597,31 +618,7 @@
         return ['1月', '2月', '3月']
       }
     },
-    mounted: function () {
-      //获取用户信息
-      this.getUserInfo()
-      //获取我的加盟商
-      this.getMyJms()
-      //根据日期获取加盟商
-      let date = moment().format('YYYY-MM-DD');
-      this.getMyJmsByDate(date, date)
-      //
-    },
-    computed: {
-      myFirstName () {
-        //获取名字 第一个字
-        let v = this.userInfo.name
-        if (!v) {
-          return ''
-        }
-        v = v.toString()
-        return v.charAt(0)
-      },
-      myJmsAll () {
-        //我的加盟商
-        return parseInt(this.myJms.TOTAL) + parseInt(this.myJms.TOTAL_FORMAL)
-      }
-    }
+   
   }
 </script>
 <style scoped>

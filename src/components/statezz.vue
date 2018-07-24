@@ -5,7 +5,6 @@
       <div class="state-zg-top">选择状态</div>
       <div class="state-zg-con">
         <p class="text">选择状态</p>
-        {{selectInx}} 
         <div class="sta-list clearfix">
           <span class="item" v-for="(item,index) in jmsstates" @click="selectSta(index)" :key="index" :class="selectInx==(index+1)?'c1':''">
             {{item}}
@@ -13,7 +12,7 @@
         </div>
         <p class="text">添加备注</p>
         <div class="textarea-con">
-          <textarea v-model="textareacon" v-on:keyup="jltext" name="" rows="" cols="" placeholder="请添加备注..."></textarea>
+          <textarea v-model="textareacon" v-on:keydown="jltext" name="" rows="" cols="" placeholder="请添加备注..."></textarea>
           <p class="num">({{textareall}}/200)</p>
         </div>
       </div>
@@ -37,14 +36,9 @@
           },
           selectInx: {   //选中索引
               type: Number,
-              default: '0',
-              required: true
-          },
-          storeid:{
-            type:String,
-            default:"",
-            required:true
-          }
+              default: 1,
+              required: false
+          } 
         },
         data(){
             return {
@@ -84,7 +78,7 @@
         },
         
         mounted: function () {
-      
+          
           this.textareacon = ''
           this.textareall = 0
         },

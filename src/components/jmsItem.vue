@@ -24,7 +24,7 @@
               required: true
           },
           selectIndex: {
-              type: String,
+              
               default:1,
               required: false
           }
@@ -36,16 +36,16 @@
         methods: {
            
         },
-        mounted: {
-        
+        mounted:{
+          
         },
         computed: {
           jmsStateClass () {
-          //  console.log(this.jsminfo);
+          
             if(this.selectIndex==""){
             this.selectIndex=0;
             }
-          //  console.log(this.selectIndex);
+       
             // 加盟商 开店 状态
             if(this.jmsflag == 'jms'){
               return 'zs-state' + this.jsminfo.merStatus

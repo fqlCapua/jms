@@ -1,12 +1,11 @@
 <template>
   <div>
     <div id="wapper">
-      <!---->
+     !@#3123213213
       <my-header :headerParam="headerParam">
-        <!-- <span class="state" @click="openshow('stateflag')">状态追踪</span> -->
+    
       </my-header>
-      <!---->
-      <!---->
+     
       <div id="jmsinfo">
  
         <div class="jmsinfo-title clearfix">
@@ -25,7 +24,7 @@
         </div>
         <div class="item clearfix">
           <span class="item-flag">商户类型：</span>
-          <div class="item-con">
+          <div class="item-con"> 
             <p class="text">{{shlxBox[jmsinfo.storeType-1].name}}</p>
           </div>
         </div>
@@ -45,12 +44,11 @@
           </div>
         </div>
         <div class="item clearfix">
-          <span class="item-flag">员工人数：</span>{{empNum}}
-          <!-- <div class="item-con ygxx">
-               <span class="jyfw-item" v-for="(item,index) in ygxx" :key="index">
-                 <span class="ygxx-item">{{item.job}} {{item.num}}人</span>
-              </span>
-          </div> -->
+          <span class="item-flag">员工人数：</span>
+         
+          <div class="item-con">
+            <p class="text">  {{empNum}}</p>
+          </div>
         </div>
         <div class="item clearfix">
           <span class="item-flag">&#x3000;&#x3000;来源：</span>
@@ -99,7 +97,7 @@
         </div>
       
   
-        <div class="item clearfix">
+     <!--    <div class="item clearfix">
           <span class="item-flag">提交时间：</span>
           <div class="item-con">
             <p class="text">{{jmsinfo.gmtCreate}}</p>
@@ -112,7 +110,7 @@
           </div>
         </div>
         
-        <div class="item clearfix">
+       <div class="item clearfix">
           <span class="item-flag">签约时间：</span>
           <div class="item-con" v-if="jmschangelist.length > 0">
             <p v-for="(item,index) in jmschangelist" :key="index" class="text" :class="[index>0?'text1':'']">
@@ -135,7 +133,7 @@
               {{item.updateTime}} &#x3000;&#x3000;{{jmsstates[item.status - 1]}}
             </p>
           </div>
-        </div>
+        </div>  -->
         <div class="sureBtn">确认开业</div>
        
       </div>
@@ -161,7 +159,7 @@
 <script>
 import { fetchGetData, fetchPostData, host } from "@/api";
 import MyHeader from "@/components/header";
-
+import Vue from "vue";
 import MsgBz from "@/components/msgbz";
 import StateZz from "@/components/statezz";
 import AlertAsk from "@/components/alertask";
@@ -169,6 +167,7 @@ import AlertSuc from "@/components/alertsuc";
 import qs from "qs";
 import { Toast, Button } from "mint-ui";
 export default {
+  name:"jmsinfo",
   data() {
     return {
       headerParam: {
@@ -189,6 +188,7 @@ export default {
         "已开业",
         "需再沟通"
       ], //加盟商状态
+      shlxBox:[],
       arealevalbox:["省级","市级","县级"],
       msgflag: false, //兴趣弹窗 flag
       stateflag: false, //更改状态弹窗flag
@@ -199,6 +199,15 @@ export default {
   },
   components: { MyHeader, MsgBz, StateZz, AlertAsk, AlertSuc, Toast },
   mounted: function() {
+    
+    var storeCode=this.$route.params.storeCode;
+    if(storeCode==undefined){
+      this.storeCode==this.getSession("storeCode");
+    }else{
+       this.storeCode=this.$route.params.storeCode;
+      this.addSession("storeCode",storeCode);
+    }
+    
     this.getStatusBox() 
     this.getJmsInfo();
     this.getYwjlName();
@@ -281,16 +290,23 @@ export default {
     },
     getJmsInfo() {
       //获取加盟商信息
-      let id = this.$route.params.storeCode;
-
-      fetch(host + "/agent/proxy/findByStoreCode?storeCode=" + id, {
+      let _that=this;
+    
+      fetch(host + "/agent/proxy/findByStoreCode?storeCode=" + this.storeCode, {
         method: "GET"
       })
         .then(res => res.text())
         .then(res => {
+      
           var res = JSON.parse(res);
+              console.log(res);
           if (res.status == 1) {
-            this.jmsinfo = res.data.storeInfo;
+          
+            if(res.data.storeInfo==null){
+              //  _that.jmsinfo = res.data.storeInfo;
+              //  Toast("数据为空");
+              // _that.$router.push({path:'/jmslist'});
+            }
           }
         });
     },

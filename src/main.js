@@ -62,7 +62,20 @@ Vue.prototype.getStatus=function(num){
   })
   return t;
  };
- 
+ Vue.prototype.addSession=function(key,val){
+   var ss=window.sessionStorage;
+   ss.setItem(key,val);
+ };
+ Vue.prototype.getSession=function(key){
+  var ss=window.sessionStorage;
+  if(ss.getItem(key)){
+
+    return   ss.getItem(key);
+  }else{
+    return false;
+  }
+  
+};
 new Vue({
   el: '#app',
   router,

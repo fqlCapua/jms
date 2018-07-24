@@ -36,6 +36,15 @@
 						</div>
 					</div>
 				</div>
+        <div class="item clearfix">
+					<span class="item-flag">类型：</span>
+					<div class="item-con">
+						<div class="radio" v-for="(item,index) in types" :key="index">
+							<input type="radio" v-model="type" :value="item.id"/>
+							<span class="text">{{item.name}}</span>
+						</div>
+					</div>
+				</div>
 				<div class="item clearfix">
 					<span class="item-flag">门店名称：</span>
 					<div class="item-con">
@@ -223,6 +232,8 @@ export default {
           name: "很感兴趣"
         }
       ],
+      types:[],
+      type:1,
       yyjb: 1,
       agencyleval: 1,
       pickerStatus: false,
@@ -340,14 +351,7 @@ export default {
     Picker
   },
   methods: {
-    getStatus(){
-      let data=this.getStatus(10030);
-      data.then(function(res){
-        console.log(res);
-      },function(err){
-         console.log(res);
-      })
-    },
+  
     changeInfo() {},
      vertifyValue(value, min, max) {
       if (value < min || value> max) {
@@ -567,7 +571,7 @@ export default {
       form.storeType = _that.storeType; //商户类型
       form.storeName = _that.mdName; //门店名称
       form.busiess = _that.busiess.join(","); //经营内容
-      //form.merInformation = JSON.stringify(_that.ygxx); //员工信息
+       form.type = _that.type; //员工信息
       form.name = _that.username; //姓名
       form.mobile = _that.usertel; //手机号
       form.areaId = _that.areaId; //区域ID
@@ -763,6 +767,16 @@ export default {
     }
   },
   mounted: function() {
+        let  vm=this;
+        var  data = this.getStatus(10038);
+      data.then(function(res) {
+          vm.types=res;
+         
+        },
+        function(err) {
+          console.log(err);
+        }
+      );
     //获取业务经理
     // this.getYwjlName()
     //从意向加盟商跳转,flag=1，初始化页面数据

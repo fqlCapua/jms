@@ -31,7 +31,8 @@
 </template>
 <script>
   import {Toast} from 'mint-ui';
-  import {fetchPostData,host} from '@/api'
+  import {fetchPostData,host} from '@/api';
+  import Vue from "vue";
   import qs from 'qs'
   export default{
     data(){
@@ -60,34 +61,26 @@
           this.pwd = ''
           return false
         }
-//      fetchPostData(host+'/api/login', qs.stringify({mobile: this.phone, password: this.pwd}))
-//        .then((data) => {
-//          if (data.code == 0) {
-//            //登录成功
-//            this.toast('登录成功')
-//            this.$store.dispatch('userLogin', data)
-//            this.$router.push({path: '/myAccount'})
-//          } else {
-// 
-//          }
-//      })
+ let _that=this;
   let formdata=new FormData();
       formdata.append("mobile",this.phone);
       formdata.append("password",this.pwd);
       
-    fetch("http://47.105.52.171:8080/mer-api/api/login",{
+    fetch(host+"/agent/proxy/fastLogin",{
         method:'POST',
     	 	body:formdata
     	 }).then((res)=>res.text())
     	   .then((res)=>{
     	   	var res=JSON.parse(res);
-      	 	    if (res.code == 0) {
-              //登录成功
-              this.toast('登录成功')
-              this.$store.dispatch('userLogin', res)
-              this.$router.push({path: '/'})
+      	 	if (res.status == 1) {
+    
+            Toast('登录成功')
+              _that.$store.dispatch('userLogin',JSON.parse(res.data));
+              _that.addSession("us",res.data);
+              _that.$store.state.token=JSON.parse(res.data).token;
+              _that.$router.push({path: '/'})
             }else {
-            this.toast('登陆失败'+res.msg);
+            Toast('登陆失败'+res.message);
             }
     	 })
       

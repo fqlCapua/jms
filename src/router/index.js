@@ -64,6 +64,12 @@ export default new Router({
       name: 'yxjmsinfo',
       meta:{auth:true},
       component: () => import('../views/home/yxjmsinfo')
+    },
+    {
+      path: '/extInfo',
+      name: 'extInfo',
+      meta:{auth:true},
+      component: () => import('../views/home/extInfo')
     },{
       path: '/dwsite',
       name: 'dwsite',

@@ -141,23 +141,21 @@
             </p>
           </div>
         </div>-->
-        <!-- <router-link :to="{name:'editJmsInfo', params: { jmsid: this.jmsid }}">
-          <div class="item clearfix">
-            <span class="xg-icon">修改</span>
-          </div>
-        </router-link>
-        <router-link :to="{name:'payment', params: { jmsid: this.jmsid }}">
-          <div class="item clearfix">
-            <span class="xg-icon">缴费</span>
-          </div>
-        </router-link> -->
+        <!-- 
+        -->
+        
         <div class="item"  v-show="$route.params.status==1">
           <div class="changeInfoBtn" @click="gochangeInfo">修改资料</div>
           <div class="payBtn"   @click="gopayment">缴费</div>
         </div>
         <div class="item"   v-show="$route.params.status==2">
-          <div class="changeInfoBtn" @click="gochangeInfo">提交补充资料</div>
-          <!-- <div class="payBtn" @click="dateOnline">在线签约</div> -->
+          <router-link :to="{name:'extInfo', params: {storeCode:this.jmsinfo.storeCode,areaId:this.jmsinfo.areaId}}">
+          <div class="item clearfix">
+            <span class="changeInfoBtn"> 提交补充资料 </span>
+          </div>
+        </router-link>
+          <!-- <div class="changeInfoBtn" @click="gochangeInfo"></div> -->
+        
         </div>
         <div class="item"   v-show="$route.params.status==3">
           <div class="changeInfoBtn" @click="gochangeInfo">提交门店地址</div>
@@ -173,11 +171,11 @@
       <!---->
       <!---->
       <!--状态追踪-->
-      <state-zz :selectInx="Number(jmsinfo.agentStatus)" :storeid="jmsinfo.storeCode" :jmsstates="jmsS" :stateflag="stateflag"
+      <state-zz :selectInx="Number(jmsinfo.agentStatus)"  :jmsstates="jmsS" :stateflag="stateflag"
                 v-on:my-event="closeStatus"></state-zz>
       <!---->
       <!--alert成功弹窗-->
-      <alert-suc :asflag="asflag" v-on:my-event="closeAsflag"></alert-suc>
+      <alert-suc :asflag="asflag"></alert-suc>
       <!---->
       <!---->
       <!--alert弹窗-->
@@ -187,13 +185,13 @@
   </div>
 </template>
 <script>
-import { fetchGetData, fetchPostData,host } from "@/api";
+import { fetchGetData, fetchPostData, host } from "@/api";
 import MyHeader from "@/components/header";
 import MsgBz from "@/components/msgbz";
 import StateZz from "@/components/statezz";
 import AlertAsk from "@/components/alertask";
 import AlertSuc from "@/components/alertsuc";
-import Vue from 'vue'
+import Vue from "vue";
 import qs from "qs";
 import { Toast, MessageBox } from "mint-ui";
 export default {
@@ -201,12 +199,11 @@ export default {
     return {
       headerParam: {
         title: "基本资料详情",
-        setting:0,
+        setting: 0,
         back: 1,
         state: 1
       },
       agencyStatus: false,
-      storeCode: "",
       jmsid: "",
       storeCode: "", //路由传参加盟商id
       jmsinfo: {}, //加盟商信息
@@ -228,14 +225,14 @@ export default {
         "汽车租赁",
         "其他"
       ],
-      jmsstates: ["","感兴趣", "需再沟通", "不感兴趣", "很感兴趣"], //加盟商状态
-      jmsS: [ "感兴趣", "需再沟通", "不感兴趣", "很感兴趣"],
+      jmsstates: ["", "感兴趣", "需再沟通", "不感兴趣", "很感兴趣"], //加盟商状态
+      jmsS: ["感兴趣", "需再沟通", "不感兴趣", "很感兴趣"],
       msgflag: false, //兴趣弹窗 flag
       stateflag: false, //更改状态弹窗flag
       aaflag: false, //询问弹窗flag
       asflag: false, //成功弹窗
       changeObj: {}, //更改状态参数,
-      agencyBox:[],
+      agencyBox: []
     };
   },
   components: {
@@ -247,9 +244,8 @@ export default {
     Toast,
     MessageBox
   },
-   computed: {
+  computed: {
     jmfw() {
-
       //经营范围
       if (!this.jmsinfo.business) {
         return [];
@@ -261,38 +257,41 @@ export default {
       } else {
         return [this.jmsinfo.business];
       }
-    },
-    
-  
-  },
-  mounted:function() {
- 
-   //意向加盟商id
-    let that = this;
-    if (that.$route.params.jmsid) {
-      sessionStorage.setItem("jmsid", that.$route.params.jmsid);
     }
-    that.jmsid = sessionStorage.getItem("jmsid");
-    that.getYxJmsInfo();
+  },
+  mounted: function() {
+    
+    //意向加盟商id
+    let that = this;
+        
+     if(that.$route.params.storeCode==undefined){
+    that.storeCode = sessionStorage.getItem("storeCode");
+     }else{
+       window.sessionStorage.setItem("storeCode", that.$route.params.storeCode);
+     }
+     
+     
+     
+    
+      that.getYxJmsInfo();
+   
     that.getJmschangeList();
     that.getYwjlName();
-
-   },
+  },
   methods: {
-    
     dmimgs() {
       //店面照片
-      
-       this.imgArr=[];
-  //  console.log(this.allInfo);
-  //     if (!this.allInfo.listSysFileManage){
-  //     this.imgArr=[];
-  //     }
-  //     if (this.allInfo.listSysFileManage.indexOf(",") != -1) {
-  //       this.imgArr=this.allInfo.listSysFileManage.split(",");
-  //     } else {
-  //       this.imgArr=[this.allInfo.listSysFileManage];
-  //     }
+
+      this.imgArr = [];
+      //  console.log(this.allInfo);
+      //     if (!this.allInfo.listSysFileManage){
+      //     this.imgArr=[];
+      //     }
+      //     if (this.allInfo.listSysFileManage.indexOf(",") != -1) {
+      //       this.imgArr=this.allInfo.listSysFileManage.split(",");
+      //     } else {
+      //       this.imgArr=[this.allInfo.listSysFileManage];
+      //     }
     },
     dateOnline() {
       let that = this;
@@ -320,60 +319,62 @@ export default {
     },
     openshow(attr) {
       // 打开弹窗
-    
+
       this[attr] = true;
     },
     closeshow(attr) {
       //关闭弹窗
-      alert("关闭1")
+
       this[attr] = false;
     },
     closeStatus(param) {
+      
+
       //关闭状态跟踪弹窗
       //status状态  notice备注
       this.stateflag = false;
-      if (param != "0") {
-        this.aaflag = true;
- 
-        this.changeObj = param;
+      if (param != 0) {
         
-      }  
-  
-      this.closeAaflag(param)
+        this.aaflag = true;
+        this.changeObj = param;
+        //   this.closeAaflag(param)
+        this._params = param;
+      } else {
+       
+      }
     },
     closeAaflag(param) {
-         
-            let form={};
-             form.contents=param.notice;
-            form.followStatus=param.status;
-            form.follower=this.jmsinfo.name;
-           // form.gmtModify=new Date().toLocaleString().split(" ")[0];
-            form.storeCode= this.jmsinfo.storeCode;
- 
-      //点击确定按钮
-     
+      var _that=this;
+      if (param) {
+        let form = {};
+        form.contents = this._params.notice;
+        form.followStatus = this._params.status;
+        form.follower = this.jmsinfo.name;
+        // form.gmtModify=new Date().toLocaleString().split(" ")[0];
+        form.storeCode = this.jmsinfo.storeCode;
+        //点击确定按钮
         //网络请求
-        fetch(host+"/agent/proxy/addStoreFollow",{
-          method:"POST",
-          headers:{
-            "Content-Type":"application/json"
+        fetch(host + "/agent/proxy/addStoreFollow", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
           },
-          body:JSON.stringify(form)
-        }).then((res)=>res.text())
-        .then(res => {
-          var res=JSON.parse(res);
-     
-          if (res.status == 1) {
-            //this.asflag = true;
-            
-                Toast("修改成功");  
-          } else {
-             Toast("修改失败");  
-         console.log(res);
-          }
-        });
-      
-       this.aaflag = false;
+          body: JSON.stringify(form)
+        })
+          .then(res => res.text())
+          .then(res => {
+            var res = JSON.parse(res);
+             if (res.status == 1) {
+               _that.asflag = true
+             window.setInterval(function(){_that.asflag = false},1500);
+            } else {
+              Toast("修改失败");
+              console.log(res);
+            }
+          });
+      }
+        
+      this.aaflag = false;
     },
     closeAsflag() {
       //关闭成功弹窗
@@ -383,26 +384,32 @@ export default {
     },
     //获取加盟商信息
     getYxJmsInfo() {
-      this.storeCode = this.$route.params.storeCode;
-     
+      if(this.$route.params.storeCode!=undefined){
+         var storeCode=this.$route.params.storeCode;
+      }else{
+        var storeCode=window.sessionStorage.getItem("storeCode");
+      }
+    
+
       //获取加盟商信息
       let _that = this;
-      fetch(host + "/agent/proxy/findByStoreCode?storeCode=" + this.storeCode, {
+      fetch(host + "/agent/proxy/findByStoreCode?storeCode=" +  storeCode, {
         method: "GET",
-        async:false
+        async: false
       })
         .then(res => res.text())
         .then(res => {
           var res = JSON.parse(res);
           if (res.status == 1) {
-           // console.log(res);
-           _that.allInfo=res.data;
+            // console.log(res);
+        
+            _that.allInfo = res.data;
             _that.jmsinfo = res.data.storeInfo;
-           
-
+          
+          _that.addSession("info",JSON.stringify(res.data.storeInfo));
           }
         });
-        this.dmimgs(); 
+      this.dmimgs();
     },
     getJmschangeList() {
       // 获取加盟商更改记录
@@ -442,17 +449,18 @@ export default {
       //        }
       //      })
     }
-  },
- 
+  }
 };
 </script>
 <style lang="less" scoped>
 .changeInfoBtn,
 .payBtn {
+  padding:0 10px;
   font-size: 14px;
   background-color: #4990e2;
   line-height: 35px;
-  width: 33%;
+  width: 50%;
+ 
   display: inline-block;
   text-align: center;
   color: #fff;
