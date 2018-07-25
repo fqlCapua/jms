@@ -22,7 +22,7 @@
         <div class="list">
           <div v-for="(item,index) in jmslist" :key="index">
       
-            <JmsItem :jsminfo="item"  :selectIndex="1" :jmsflag="jmsflag"></JmsItem>
+            <JmsItem :jsminfo="item"  :selectIndex="selectIndex" :jmsflag="jmsflag"></JmsItem>
           
           </div>
         </div>

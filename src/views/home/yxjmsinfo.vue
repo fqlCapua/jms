@@ -33,14 +33,6 @@
             <p class="text">{{jmsinfo.storeName}}</p>
           </div>
         </div>
-        <!-- <div class="item clearfix">
-          <span class="item-flag">经营范围：</span>
-          <div class="item-con jyfw">
-              <span class="jyfw-item" v-for="(item,index) in jmfw" :key="index">
-                {{jyfw_Asc[index]}}
-              </span>
-          </div>
-        </div> -->
        
         <div class="item clearfix">
           <span class="item-flag">&#x3000;&#x3000;来源：</span>
@@ -48,12 +40,7 @@
             <p class="text">{{source[jmsinfo.source]}}</p>
           </div>
         </div>
-        <!-- <div class="item clearfix">
-          <span class="item-flag">沟通内容：</span>
-          <div class="item-con clearfix">
-            <p class="text">{{jmsinfo.communication}}</p>
-          </div>
-        </div> -->
+        
         <div class="line"></div>
         <div class="item clearfix item2">
           <span class="item-flag">&#x3000;&#x3000;姓名：</span>
@@ -73,8 +60,9 @@
             <p class="text">{{jmsinfo.address}}</p>
           </div>
         </div>
+    
         <div class="item clearfix">
-          <span class="item-flag">&#x3000;行政级别：</span>
+          <span class="item-flag"> 代理级别：</span>
           <div class="item-con">
             <p class="text">{{aleval[jmsinfo.areaLevel]}}</p>
           </div>
@@ -133,24 +121,16 @@
             <p class="text">{{jmsinfo.gmtModify}}</p>
           </div>
         </div>
-        <!--<div class="item clearfix">
-          <span class="item-flag">更改记录：</span>
-          <div class="item-con" v-if="jmschangelist.length > 0">
-            <p v-for="(item,index) in jmschangelist" :key="index" class="text" :class="[index>0?'text1':'']">
-              {{item.updateTime}} &#x3000;&#x3000;{{jmsstates[item.status - 1]}}
-            </p>
-          </div>
-        </div>-->
-        <!-- 
-        -->
+ 
         
         <div class="item"  v-show="$route.params.status==1">
-          <div class="changeInfoBtn" @click="gochangeInfo">修改资料</div>
-          <div class="payBtn"   @click="gopayment">缴费</div>
+          
+          <span class="changeInfoBtn" @click="gochangeInfo">修改资料</span>
+          <span class="payBtn"   @click="gopayment">缴费</span>
         </div>
         <div class="item"   v-show="$route.params.status==2">
           <router-link :to="{name:'extInfo', params: {storeCode:this.jmsinfo.storeCode,areaId:this.jmsinfo.areaId}}">
-          <div class="item clearfix">
+           <div class="item clearfix">
             <span class="changeInfoBtn"> 提交补充资料 </span>
           </div>
         </router-link>
@@ -245,19 +225,7 @@ export default {
     MessageBox
   },
   computed: {
-    jmfw() {
-      //经营范围
-      if (!this.jmsinfo.business) {
-        return [];
-      }
-      if (this.jmsinfo.business.indexOf(",") != -1) {
-        let ASIIArr = new Array();
-
-        return this.jmsinfo.business.split(",");
-      } else {
-        return [this.jmsinfo.business];
-      }
-    }
+    
   },
   mounted: function() {
     
@@ -274,25 +242,25 @@ export default {
      
     
       that.getYxJmsInfo();
-   
+ 
     that.getJmschangeList();
     that.getYwjlName();
   },
   methods: {
-    dmimgs() {
-      //店面照片
+    // dmimgs() {
+    //   //店面照片
 
-      this.imgArr = [];
-      //  console.log(this.allInfo);
-      //     if (!this.allInfo.listSysFileManage){
-      //     this.imgArr=[];
-      //     }
-      //     if (this.allInfo.listSysFileManage.indexOf(",") != -1) {
-      //       this.imgArr=this.allInfo.listSysFileManage.split(",");
-      //     } else {
-      //       this.imgArr=[this.allInfo.listSysFileManage];
-      //     }
-    },
+  
+       
+    //       if (!this.allInfo.listSysFileManage){
+    //       this.imgArr=[];
+    //       }
+    //       if (this.allInfo.listSysFileManage.indexOf(",") != -1) {
+    //         this.imgArr=this.allInfo.listSysFileManage.split(",");
+    //       } else {
+    //         this.imgArr=[this.allInfo.listSysFileManage];
+    //       }
+    // },
     dateOnline() {
       let that = this;
       var form = new FormData();
@@ -306,9 +274,7 @@ export default {
           } else {
             Toast("发送失败");
           }
-
-          //            this.$store.dispatch('userLogin', data)
-          //            this.$router.push({path: '/myAccount'})
+ 
         });
     },
     gochangeInfo() {
@@ -409,7 +375,7 @@ export default {
           _that.addSession("info",JSON.stringify(res.data.storeInfo));
           }
         });
-      this.dmimgs();
+      
     },
     getJmschangeList() {
       // 获取加盟商更改记录
@@ -455,13 +421,13 @@ export default {
 <style lang="less" scoped>
 .changeInfoBtn,
 .payBtn {
-  padding:0 10px;
+  font-size:0;
+  padding:0 20px;
+  display: inline-block;
   font-size: 14px;
   background-color: #4990e2;
   line-height: 35px;
-  width: 50%;
  
-  display: inline-block;
   text-align: center;
   color: #fff;
   border-radius: 5px;

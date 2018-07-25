@@ -80,7 +80,7 @@
               _that.$store.state.token=JSON.parse(res.data).token;
               _that.$router.push({path: '/'})
             }else {
-            Toast('登陆失败'+res.message);
+              Toast('登陆失败'+res.message);
             }
     	 })
       

@@ -95,7 +95,7 @@
 				</div>
 				<!-- -->
 				<div class="item clearfix">
-					<span class="item-flag">所在区域：<i class="icon"></i></span>
+					<span class="item-flag">代理区域：<i class="icon"></i></span>
 
 					<div class="item-con" @click="togglePicker">
 						<i class="siteicon"></i>
@@ -118,7 +118,7 @@
 				</div>
 
 				<div class="item clearfix">
-					<span class="item-flag">行政级别：</span>
+					<span class="item-flag">代理级别：</span>
 					<div class="item-con item-con1">
 						<div class="selectcon">
 							<i class="xzqh-icon"></i>
@@ -351,7 +351,6 @@ export default {
     Picker
   },
   methods: {
-  
     changeInfo() {},
      vertifyValue(value, min, max) {
       if (value < min || value> max) {
@@ -416,7 +415,7 @@ export default {
           _that.addimgbtn = true;
         }
 	  }
-	  console.log(this);
+ 
     },
     uploadImg(file) {
 		var _that=this;
@@ -553,18 +552,13 @@ export default {
         alert("请选择意愿级别!");
         return false;
       }
-      //   if (_that.ygxx.length == 1) {
-      //     //员工信息
-      //     if (!_that.ygxx[0].job || !_that.ygxx[0].num) {
-      //       _that.ygxx = null;
-      //     }
-      //   }
+     
 
       if (_that.xxdz == "点击定位当前位置") {
         _that.xxdz = "";
       }
-  if(_that.empNum<1||_that.empNum>10){
-    Toast("员工人数不正确");
+     if(_that.empNum<1||_that.empNum>10){
+         Toast("员工人数不正确");
         return false;
       }
       let form = {};
@@ -588,21 +582,8 @@ export default {
         }
       }
 
-      if (sessionStorage.getItem("jmsid")) {
-        //编辑更新
-        //   formData.append('createTime', _that.createTime)
-        //      formData.append('id', sessionStorage.getItem('jmsid'))
-        //        fetchPostData(host+'/api/updateMer', formData).then((data) => {
-        //          if (data.code == 0) {
-        //            Toast('提交成功!')
-        //            if (this.flag == 1) {
-        //              this.$router.go(-2)
-        //            } else {
-        //              this.$router.go(-2)
-        //            }
-        //          }
-        //        })
-        //     sessionStorage.setItem('jmsid', '')
+      if (sessionStorage.getItem("store")) {
+   
       } else {
       }
       fetch(host + "/agent/proxy/addStoreInfo", {
@@ -622,89 +603,8 @@ export default {
           }
         });
     },
-    getYwjlName() {
-      //获取 业务经理的name
-      fetchPostData(host + "/api/queryUser", {}).then(data => {
-        if (data.code == 0) {
-          this.ywjl = data.user.name;
-          this.sjjl = data.user.leaderName;
-        }
-      });
-    },
-    //获取意向加盟商信息
-    getYxJmsInfo() {
-      //获取加盟商信息
-      let id = this.jmsid;
-      fetchGetData(host + "/api/selectById/" + id, {}).then(data => {
-        if (data.code == 0) {
-          let jmsinfo = data.merInf;
-          this.createTime = jmsinfo.createTime; //创建时间
-          if (
-            jmsinfo.merType != "个人" &&
-            jmsinfo.merType != "洗车店" &&
-            jmsinfo.merType != "维修店" &&
-            jmsinfo.merType != "保养店"
-          ) {
-            this.shlxqt = jmsinfo.merType; //商户类型其它
-            this.shlx = "其它"; //商户类型
-          } else {
-            this.shlx = jmsinfo.merType; //商户类型
-          }
-          this.mdName = jmsinfo.merName; //门店名称
-          if (jmsinfo.merContent) {
-            //经营内容
-            if (jmsinfo.merContent.indexOf(",") != -1) {
-              this.jynr = jmsinfo.merContent.split(",");
-            } else {
-              this.jynr = [jmsinfo.merContent];
-            }
-          }
-          if (
-            jmsinfo.merInformation !== "null" &&
-            jmsinfo.merInformation !== null
-          )
-            this.ygxx = JSON.parse(jmsinfo.merInformation); //员工信息
-          if (
-            jmsinfo.merSource != "朋友介绍" &&
-            jmsinfo.merSource != "朋友介绍" &&
-            jmsinfo.merSource != "线上渠道"
-          ) {
-            this.ly = "其它";
-          } else {
-            this.ly = jmsinfo.merSource; //来源
-          }
-          this.communication = jmsinfo.communication; // 沟通内容
-          this.username = jmsinfo.name; //用户姓名
-          this.usertel = jmsinfo.phone; //用户手机
-          this.xzqjb = jmsinfo.cityGrade; //行政区级别
-          this.xxdz = jmsinfo.address; //详细地址
-          this.xxloc = jmsinfo.longitudeLatitude; //详细地址
-          this.yyjb = jmsinfo.cusWish; //意愿级别
-          this.beizhu = jmsinfo.remarks; //备注
-          this.merStatus = jmsinfo.merStatus;
-          if (jmsinfo.image) {
-            //店面图片
-            if (jmsinfo.image.indexOf(",") != -1) {
-              this.dmimgs = jmsinfo.image.split(",");
-            } else {
-              this.dmimgs = [jmsinfo.image];
-            }
-          }
-          //数据回显
-          this.showJmsinfo();
-          sessionStorage.setItem("jmsinfo", "");
-          //
-          if (sessionStorage.getItem("zdsite")) {
-            this.xxdz = sessionStorage.getItem("zdsite");
-            sessionStorage.setItem("zdsite", "");
-          }
-          if (sessionStorage.getItem("zdloc")) {
-            this.xxloc = sessionStorage.getItem("zdloc");
-            sessionStorage.setItem("zdloc", "");
-          }
-        }
-      });
-    },
+ 
+    
     saveJmsinfo() {
       //销毁之前保存jms信息
       let that = this;
@@ -732,28 +632,9 @@ export default {
     },
     showJmsinfo() {
       //回显保存的jmsinfo
-      if (sessionStorage.getItem("jmsinfo")) {
-        let that = this;
-        let jmsinfo = JSON.parse(sessionStorage.getItem("jmsinfo"));
-        that.flag = jmsinfo.flag;
-        that.shlx = jmsinfo.shlx;
-        that.shlxqt = jmsinfo.shlxqt;
-        that.mdName = jmsinfo.mdName;
-        that.jynr = jmsinfo.jynr;
-        that.ly = jmsinfo.ly;
-        that.communication = jmsinfo.communication;
-        that.username = jmsinfo.username;
-        that.usertel = jmsinfo.usertel;
-        that.xzqjb = jmsinfo.xzqjb;
-        that.xxdz = jmsinfo.xxdz;
-        that.xxloc = jmsinfo.xxloc;
-        that.yyjb = jmsinfo.yyjb;
-        that.ywjl = jmsinfo.ywjl;
-        that.sjjl = jmsinfo.sjjl;
-        that.beizhu = jmsinfo.beizhu;
-        that.ygxx = jmsinfo.ygxx;
-        that.addimgbtn = jmsinfo.addimgbtn;
-        that.merStatus = jmsinfo.merStatus;
+      if (sessionStorage.getItem("info")) {
+        alert("OK");
+    
       }
     }
   },
@@ -777,66 +658,25 @@ export default {
           console.log(err);
         }
       );
-    //获取业务经理
-    // this.getYwjlName()
+ 
+ 
     //从意向加盟商跳转,flag=1，初始化页面数据
-    if (this.$route.params.hasOwnProperty("jmsid")) {
+    if (this.$route.params.hasOwnProperty("storeCode")) {
       this.flag = "1";
-      this.jmsid = this.$route.params.jmsid;
-      sessionStorage.setItem("jmsid", this.jmsid);
+      this.storeCode = this.$route.params.storeCode;
+      sessionStorage.setItem("storeCode", this.storeCode);
       this.getYxJmsInfo();
+    }else{
+      this.storeCode=this.getSession("storeCode");
     }
-    //查看是否有 自动定位，如果有，则是 从选址 返回的
-    if (sessionStorage.getItem("zdsite")) {
-      //数据回显
-      this.showJmsinfo();
-      //
-      this.xxdz = sessionStorage.getItem("zdsite");
-      this.xxloc = sessionStorage.getItem("zdloc");
-      //
-      if (sessionStorage.getItem("jmsid")) {
-        this.jmsid = sessionStorage.getItem("jmsid");
-        this.getYxJmsInfo();
-      }
-    }
+   
   },
   destroyed: function() {
     this.saveJmsinfo();
   }
 };
 
-//  form.auditMemo = _that.beizhu; //审核备注
-//form.bankAccount=_that.bankAccount;//银行账户
-//form.auditSug=_that.auditSug; //审核意见
-// form.businessOther=_that.businessOther; //经营其他内容
-//form.company=_that.company;//企业名称
-// form.companyShort=_that.companyShort;//企业简称
-// form.companyTel=_that.companyTel;//企业tel
-// form.creditCode=_that.creditCode;//统一社会信用代码
-// form.dept=_that.dept;//所属部门
-// form.gmtCreate=_that.gmtCreate;//创建时间
-// form.gmtModify=_that.gmtModify;//修改时间
-// form.gmtOpen=_that.gmtOpen;//开业时间
-// form.gmtSign=_that.gmtSign;//签约时间
-// form.headerCode=_that.headerCode;//
-// form.idBackImg=_that.idBackImg;//
-// form.idFaceImg=_that.idFaceImg;//
-// form.idNum=_that.idNum;//
-
-// form.licFaceImg=_that.licFaceImg;//
-// form.listSysFileManage=_that.listSysFileManage;//
-
-// form.managerMobile=_that.managerMobile;//
-
-// form.openStatus=_that.openStatus;// 开业状态
-// form.personAreaId=_that.personAreaId;//
-// form.signStatus=_that.signStatus;//
-
-// form.sourceOther=_that.sourceOther;//
-// form.storeAllName=_that.storeAllName;//
-// form.storeAreaDescribe=_that.storeAreaDescribe;//
-// form.storeCode=_that.storeCode;//
-// form.personAreaId=_that.personAreaId;//
+ 
 </script>
 <style scoped>
 .mint-popup {

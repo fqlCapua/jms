@@ -1,7 +1,7 @@
 <template>
   <div>
     <div id="wapper">
-     !@#3123213213
+ 
       <my-header :headerParam="headerParam">
     
       </my-header>
@@ -22,49 +22,48 @@
             <p class="text">{{jmsinfo.storeCode}}</p>
           </div>
         </div>
-        <div class="item clearfix">
+      <div class="item clearfix" v-if="jmsinfo.storeType!=null">
           <span class="item-flag">商户类型：</span>
           <div class="item-con"> 
             <p class="text">{{shlxBox[jmsinfo.storeType-1].name}}</p>
           </div>
-        </div>
-        <div class="item clearfix">
+        </div> 
+      <div class="item clearfix">
           <span class="item-flag">门店名称：</span>
           <div class="item-con">
             <p class="text">{{jmsinfo.storeName}}</p>
           </div>
         </div>
-        <div class="item clearfix">
+       <div class="item clearfix" v-if="jmsinfo.business!=null">
           <span class="item-flag">经营内容：</span>
           <div class="item-con jyfw">
-            {{business}} 
-                <span class="jyfw-item" v-for="(item,index) in jmsinfo.business" :key="index">
+              <span class="jyfw-item" v-for="(item,index) in jmsinfo.business" :key="index">
                 {{ businessBox[item-1].name}}
               </span>  
           </div>
-        </div>
+        </div> 
         <div class="item clearfix">
           <span class="item-flag">员工人数：</span>
          
           <div class="item-con">
-            <p class="text">  {{empNum}}</p>
+            <p class="text">  {{jmsinfo.empNum}}</p>
           </div>
-        </div>
-        <div class="item clearfix">
+        </div>  
+    <div class="item clearfix" v-if="jmsinfo.source!=null">
           <span class="item-flag">&#x3000;&#x3000;来源：</span>
           <div class="item-con">
             <p class="text">{{lyBox[jmsinfo.source-1].name}}</p>
           </div>
         </div>
-       
-        <div class="line"></div>
+    
+         <div class="line"></div>
         <div class="item clearfix item2">
           <span class="item-flag">&#x3000;&#x3000;姓名：</span>
           <div class="item-con">
             <p class="text">{{jmsinfo.name}}</p>
           </div>
         </div>
-        <div class="item clearfix">
+         <div class="item clearfix">
           <span class="item-flag">手机号码：</span>
           <div class="item-con">
             <p class="text">{{jmsinfo.mobile}}</p>
@@ -97,20 +96,20 @@
         </div>
       
   
-     <!--    <div class="item clearfix">
+         <div class="item clearfix">
           <span class="item-flag">提交时间：</span>
           <div class="item-con">
             <p class="text">{{jmsinfo.gmtCreate}}</p>
           </div>
         </div>
-        <div class="item clearfix">
+         <div class="item clearfix" v-show="$route.params.status==1">
           <span class="item-flag">缴费时间：</span>
           <div class="item-con">
             <p class="text">{{jmsinfo.joinTime}}</p>
           </div>
         </div>
         
-       <div class="item clearfix">
+        <div class="item clearfix" v-show="$route.params.status==1">
           <span class="item-flag">签约时间：</span>
           <div class="item-con" v-if="jmschangelist.length > 0">
             <p v-for="(item,index) in jmschangelist" :key="index" class="text" :class="[index>0?'text1':'']">
@@ -118,15 +117,15 @@
             </p>
           </div>
         </div>
-        <div class="item clearfix">
+      <div class="item clearfix" v-show="$route.params.status==1">
           <span class="item-flag">开业时间：</span>
           <div class="item-con" v-if="jmschangelist.length > 0">
             <p v-for="(item,index) in jmschangelist" :key="index" class="text" :class="[index>0?'text1':'']">
               {{item.updateTime}} &#x3000;&#x3000;{{jmsstates[item.status - 1]}}
             </p>
           </div>
-        </div>
-         <div class="item clearfix" >
+        </div> 
+           <!--    <div class="item clearfix" >
           <span class="item-flag">开业流程</span>
           <div class="item-con" style="border:1px solid #BABABA;height:50px;" v-if="jmschangelist.length > 0">
             <p v-for="(item,index) in jmschangelist" :key="index" class="text" :class="[index>0?'text1':'']">
@@ -134,7 +133,7 @@
             </p>
           </div>
         </div>  -->
-        <div class="sureBtn">确认开业</div>
+        <div class="sureBtn" v-show="$route.params.status==2">确认开业</div>
        
       </div>
       <!---->
@@ -167,7 +166,7 @@ import AlertSuc from "@/components/alertsuc";
 import qs from "qs";
 import { Toast, Button } from "mint-ui";
 export default {
-  name:"jmsinfo",
+  name: "jmsinfo",
   data() {
     return {
       headerParam: {
@@ -188,8 +187,9 @@ export default {
         "已开业",
         "需再沟通"
       ], //加盟商状态
-      shlxBox:[],
-      arealevalbox:["省级","市级","县级"],
+      shlxBox: [],
+      lyBox: [],
+      arealevalbox: ["省级", "市级", "县级"],
       msgflag: false, //兴趣弹窗 flag
       stateflag: false, //更改状态弹窗flag
       aaflag: false, //询问弹窗flag
@@ -200,15 +200,15 @@ export default {
   components: { MyHeader, MsgBz, StateZz, AlertAsk, AlertSuc, Toast },
   mounted: function() {
     
-    var storeCode=this.$route.params.storeCode;
-    if(storeCode==undefined){
-      this.storeCode==this.getSession("storeCode");
-    }else{
-       this.storeCode=this.$route.params.storeCode;
-      this.addSession("storeCode",storeCode);
+    var storeCode = this.$route.params.storeCode;
+    if (storeCode == undefined) {
+      this.storeCode == this.getSession("storeCode");
+    } else {
+      this.storeCode = this.$route.params.storeCode;
+      this.addSession("storeCode", storeCode);
     }
     
-    this.getStatusBox() 
+    this.getStatusBox();
     this.getJmsInfo();
     this.getYwjlName();
     this.getJmschangeList();
@@ -216,34 +216,37 @@ export default {
   methods: {
     getStatusBox() {
       //加载来源
-      let vm=this;
+      let vm = this;
       var data = this.getStatus(10032);
-      data.then(function(res) {
-          vm.lyBox=res;
+      data.then(
+        function(res) {
+          vm.lyBox = res;
         },
         function(err) {
           console.log(err);
         }
       );
       //加载门店类型
-    
-      var  data = this.getStatus(10030);
-      data.then(function(res) {
-          vm.shlxBox=res;
+
+      var data = this.getStatus(10030);
+      data.then(
+        function(res) {
+          vm.shlxBox = res;
         },
         function(err) {
           console.log(err);
         }
       );
       //经营内容
-       var  data = this.getStatus(10031);
-       data.then(function(res) {
-          vm.businessBox=res;
+      var data = this.getStatus(10031);
+      data.then(
+        function(res) {
+          vm.businessBox = res;
         },
         function(err) {
           console.log(err);
-        });
-        console.log(this);
+        }
+      );
     },
     openshow(attr) {
       // 打开弹窗
@@ -290,20 +293,24 @@ export default {
     },
     getJmsInfo() {
       //获取加盟商信息
-      let _that=this;
-    
-      fetch(host + "/agent/proxy/findByStoreCode?storeCode=" + this.storeCode, {
+      let _that = this;
+      if(_that.$router.params){
+       var storeCode=_that.$router.params.storeCode;
+      }else{
+      var storeCode=_that.getSession("storeCode");
+      }
+      fetch(host + "/agent/proxy/findByStoreCode?storeCode=" +  storeCode, {
         method: "GET"
       })
         .then(res => res.text())
         .then(res => {
-      
           var res = JSON.parse(res);
-              console.log(res);
-          if (res.status == 1) {
           
-            if(res.data.storeInfo==null){
-              //  _that.jmsinfo = res.data.storeInfo;
+          if (res.status == 1) {
+            _that.allInfo= res.data;
+            _that.jmsinfo = res.data.storeInfo;
+            _that.addSession("info",JSON.stringify(res.data.storeInfo));
+            if (res.data.storeInfo == null) {
               //  Toast("数据为空");
               // _that.$router.push({path:'/jmslist'});
             }
@@ -364,8 +371,7 @@ export default {
         return [this.jmsinfo.image];
       }
     }
-  },
-  
+  }
 };
 </script>
 <style lang="less" scoped>
