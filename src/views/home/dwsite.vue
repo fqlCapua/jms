@@ -151,14 +151,14 @@
         map.addEventListener('click', function (e) {  //地图单击事件
           let pt = e.point;
           geoc.getLocation(pt, function(rs){
-            console.log(rs)
+    
             let addComp = rs.addressComponents;
             let site = addComp.province + addComp.city + addComp.district + addComp.street + addComp.streetNumber
             MessageBox({title: '', message: site, showCancelButton: true}).then((data) => {
               if (data == 'confirm') {
                 sessionStorage.setItem('zdsite', site)
                 sessionStorage.setItem('zdloc', pt.lng+','+pt.lat)
-                that.$router.back()
+                that.$router.back();
               }
             });
           });

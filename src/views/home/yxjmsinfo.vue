@@ -125,7 +125,9 @@
         
         <div class="item"  v-show="$route.params.status==1">
           
-          <span class="changeInfoBtn" @click="gochangeInfo">修改资料</span>
+        <router-link :to="{name:'editJmsInfo',params:{storeCode:this.jmsinfo.storeCode,jmsInfo:this.jmsinfo,hisPage:'change'}}">
+          <span class="changeInfoBtn"  >修改资料</span>
+        </router-link>
           <span class="payBtn"   @click="gopayment">缴费</span>
         </div>
         <div class="item"   v-show="$route.params.status==2">

@@ -9,30 +9,11 @@
 				<div class="item clearfix">
 					<span class="item-flag">商户类型：<i class="icon"></i></span>
 					<div class="item-con clearfix">
-						<div class="radio">
-							<input type="radio" name="shlx" id="shlx" value="个人" v-model="shlx" />
-							<span class="text">个人</span>
-						</div>
-						<div class="radio">
-							<input type="radio" name="shlx" id="" value="公司" v-model="shlx" />
-							<span class="text">公司</span>
-						</div>
-						<div class="radio">
-							<input type="radio" name="shlx" id="" value="洗车店" v-model="shlx" />
-							<span class="text">洗车店</span>
-						</div>
-						<div class="radio">
-							<input type="radio" name="shlx" id="" value="维修店" v-model="shlx" />
-							<span class="text">维修店</span>
-						</div>
-						<div class="radio">
-							<input type="radio" name="shlx" id="" value="保养店" v-model="shlx" />
-							<span class="text">保养店</span>
-						</div>
-						<div class="radio">
-							<input type="radio" name="shlx" id="" value="其它" v-model="shlx" />
-							<span class="text">其它</span>
-							<input type="text" :maxlength="shlxqtlen" v-on:blur="vertifylen(shlxqt,1,10)" v-model.trim="shlxqt" class="input qt-input" placeholder="请输入其它商户类型" />
+				 
+						<div class="radio" v-for="(item,index) in storeTypeBox" :key="index">
+							<input type="radio" name="shlx"  v-model="shlx" :value="item.id"/>
+							<span class="text">{{item.name}}</span>
+							<input type="text" v-show="item.id==6"  :maxlength="shlxqtlen" v-on:blur="vertifylen(shlxqt,1,10)" v-model.trim="shlxqt" class="input qt-input" placeholder="请输入其它商户类型" />
 						</div>
 					</div>
 				</div>
@@ -55,7 +36,7 @@
 					<span class="item-flag">经营内容：</span>
 					<div class="item-con">
 						<div class="checkbox" v-for="(item,index) in businessBox" :key="index">
-							<input type="checkbox" name="jynr"   :value="item.id" v-model="busiess" />
+							<input type="checkbox" name="jynr"   :value="item.id" v-model="business" />
 							<span class="text">{{item.name}}</span>
 						</div>
 				 
@@ -93,31 +74,7 @@
 						<input type="text" v-model.trim="usertel"  v-on:blur="vertifyPhone(usertel)" minlength="11" maxlength="11" class="input md-name" placeholder="请输入手机号码" />
 					</div>
 				</div>
-				<!-- -->
-				<div class="item clearfix">
-					<span class="item-flag">代理区域：<i class="icon"></i></span>
-
-					<div class="item-con" @click="togglePicker">
-						<i class="siteicon"></i>
-						<p class="sitecon">
-							{{areaText}}
-						</p>
-					</div>
-
-				</div>
-				<div class="item clearfix">
-					<span class="item-flag">详细地址：</span>
-					<router-link :to="{path:'/dwsite'}">
-						<div class="item-con">
-							<i class="siteicon"></i>
-							<p class="sitecon">
-								{{xxdz}}
-							</p>
-						</div>
-					</router-link>
-				</div>
-
-				<div class="item clearfix">
+        	<div class="item clearfix">
 					<span class="item-flag">代理级别：</span>
 					<div class="item-con item-con1">
 						<div class="selectcon">
@@ -128,7 +85,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="item clearfix">
+        <div class="item clearfix">
 
 					<span class="item-flag">意愿级别：<i class="icon"></i></span>
 					<div class="item-con clearfix">
@@ -144,6 +101,32 @@
 						<p class="ywjl">{{ywjl}}</p>
 					</div>
 				</div>
+				<!-- -->
+				<div class="item clearfix">
+					<span class="item-flag">代理区域：<i class="icon"></i></span>
+
+					<div class="item-con" @click="togglePicker">
+						<i class="siteicon"></i>
+						<p class="sitecon">
+							{{areaText}}
+						</p>
+					</div>
+
+				</div>
+				<div class="item clearfix">
+					<span class="item-flag">详细地址：</span>
+				 
+						<div class="item-con" @click="goMap">
+							<i class="siteicon"></i>
+							<p class="sitecon">
+							  	{{xxdz}}
+							</p>
+						</div>
+			 
+				</div>
+
+			
+			
 
 				<div class="item clearfix item1">
 					<span class="item-flag">&#x3000;&#x3000;来源：</span>
@@ -171,7 +154,7 @@
  
 </div> 
 				<mt-popup v-model="pickerStatus" position="bottom">
-					<mt-picker :slots="slots" @change="onValuesChange"></mt-picker>
+					<mt-picker :defaultIndex="dindex"   :visibleItemCount="pickerNum" :slots="slots" @change="onValuesChange"></mt-picker>
 				</mt-popup>
 
 				<p class="tip">* 为必填项</p>
@@ -185,6 +168,7 @@
 import axios from "axios";
 import MyHeader from "@/components/header";
 import { fetchPostData, fetchGetData, host } from "@/api";
+import Vue from "vue";
 import qs from "qs";
 import { Toast, Popup, Picker, MessageBox,Field} from "mint-ui";
 export default {
@@ -195,8 +179,14 @@ export default {
         setting: 0,
         back: 1
       },
-      
-      storeType: "",
+      isNew:true,
+      afterMap:false,
+      dindex:1,
+      pickerNum:3,
+      storeTypeBox:[],
+      storeType:1,
+      busiessBox:[],
+      business:[1,2,3,4,5,6,7,8,9],
       areaText: "点击选择",
       aleval: "1",
       areaLeval: [
@@ -213,7 +203,6 @@ export default {
           name: "县级"
         }
       ],
-      storTypeBox: ["个人", "公司", "洗车店", "维修店", "保养店", "其它"],
       agencylevalBox: [
         {
           id: 1,
@@ -238,7 +227,7 @@ export default {
       agencyleval: 1,
       pickerStatus: false,
       flag: "0",
-      shlx: "个人", //商户类型
+      shlx: 1, //商户类型
       shlxqt: "", //商户类型其它
       mdName: "", //门店名称
       jynr: [], //经营内容
@@ -262,44 +251,9 @@ export default {
       ], //来源
       ly: 1,
       businessBox: [
-        {
-          id: 1,
-          name: "维修"
-        },
-        {
-          id: 2,
-          name: "洗车"
-        },
-        {
-          id: 3,
-          name: "美容"
-        },
-        {
-          id: 4,
-          name: "装饰服务"
-        },
-        {
-          id: 5,
-          name: "配件销售"
-        },
-        {
-          id: 6,
-          name: "保险"
-        },
-        {
-          id: 7,
-          name: "汽车代销"
-        },
-        {
-          id: 8,
-          name: "汽车租赁"
-        },
-        {
-          id: 9,
-          name: "其他"
-        }
+       
       ],
-      busiess: [],
+     
       communication: "", // 沟通内容
       username: "", //用户姓名
       usertel: "", //用户手机号
@@ -315,6 +269,7 @@ export default {
           num: " "
         }
       ], //员工信息
+
       dmimgs: [], //店面图片
       dmimgsfiles: [], //图片文件流
       addimgbtn: true, //添加店面图片按钮
@@ -340,7 +295,8 @@ export default {
         }
       ],
       fileImgArr: [],
-      empNum:1
+      empNum:1,
+
     };
   },
   components: {
@@ -351,6 +307,10 @@ export default {
     Picker
   },
   methods: {
+    goMap(){
+      this.addSession("afterMap",true);
+      this.$router.push("/dwsite");
+    },
     changeInfo() {},
      vertifyValue(value, min, max) {
       if (value < min || value> max) {
@@ -418,7 +378,7 @@ export default {
  
     },
     uploadImg(file) {
-		var _that=this;
+	   	var _that=this;
       var form = new FormData();
       form.append("module", "/app");
       form.append("appid", "osso237im");
@@ -459,7 +419,7 @@ export default {
         }
       });
     },
-    onValuesChange(picker, values) {
+    onValuesChange(picker, values){
       if (this.area) {
         this.areaText = values.join("");
         var cityNameArr = [],
@@ -528,21 +488,21 @@ export default {
       // 提交信息
       let _that = this;
     
-      if (_that.shlx == "其它") {
+      if (_that.shlx == 6) {
         //如果商户类型选择其它
         if (!_that.shlxqt) {
           Toast("请输入商户类型");
           return false;
         } else {
-          _that.storeType = 6;
-          // _that.shlx = 6;
+         
         }
       } else {
-        for (let p of _that.storTypeBox.entries()) {
-          if (_that.shlx == p[1]) {
-            _that.storeType = p[0] + 1;
-          }
-        }
+        // for (let p of _that.storTypeBox.entries()) {
+        //   if (_that.shlx == p[1]) {
+        //     _that.storeType = p[0] + 1;
+        //   }
+        // }
+      
       }
       if (_that.areaText == "点击选择") {
         Toast("请选择区域");
@@ -562,7 +522,16 @@ export default {
         return false;
       }
       let form = {};
-      form.storeType = _that.storeType; //商户类型
+      if(!_that.isNew){
+        _that.storeCode=_that.getSession("storeCode");
+        form.storeCode=_that.storeCode;
+        var url="/agent/proxy/editStoreInfo";
+      }else{
+         var url="/agent/proxy/addStoreInfo";
+      }
+
+      
+      form.storeType = _that.shlx; //商户类型
       form.storeName = _that.mdName; //门店名称
       form.busiess = _that.busiess.join(","); //经营内容
        form.type = _that.type; //员工信息
@@ -582,11 +551,7 @@ export default {
         }
       }
 
-      if (sessionStorage.getItem("store")) {
-   
-      } else {
-      }
-      fetch(host + "/agent/proxy/addStoreInfo", {
+      fetch(host +url , {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -598,6 +563,8 @@ export default {
           var res = JSON.parse(res);
           if (res.status == 1) {
             Toast("添加成功");
+             
+            _that.isNew=true;
           } else {
             Toast(res.message);
           }
@@ -607,34 +574,63 @@ export default {
     
     saveJmsinfo() {
       //销毁之前保存jms信息
-      let that = this;
+      let _that = this;
       let jmsinfo = {};
-      jmsinfo.flag = that.flag;
-      jmsinfo.shlx = that.shlx;
-      jmsinfo.shlxqt = that.shlxqt;
-      jmsinfo.mdName = that.mdName;
-      jmsinfo.jynr = that.jynr;
-      jmsinfo.ly = that.ly;
-      jmsinfo.communication = that.communication;
-      jmsinfo.username = that.username;
-      jmsinfo.usertel = that.usertel;
-      jmsinfo.xzqjb = that.xzqjb;
-      jmsinfo.xxdz = that.xxdz;
-      jmsinfo.xxloc = that.xxloc;
-      jmsinfo.yyjb = that.yyjb;
-      jmsinfo.ywjl = that.ywjl;
-      jmsinfo.sjjl = that.sjjl;
-      jmsinfo.beizhu = that.beizhu;
-      jmsinfo.ygxx = that.ygxx;
-      jmsinfo.addimgbtn = that.addimgbtn;
-      jmsinfo.merStatus = that.merStatus;
+      jmsinfo.storeType = _that.shlx; //商户类型
+      jmsinfo.storeName = _that.mdName; //门店名称
+      jmsinfo.busiess = _that.busiess; //经营内容
+       jmsinfo.type = _that.type; //员工信息
+      jmsinfo.username = _that.username; //姓名
+      jmsinfo.usertel = _that.usertel; //手机号
+      jmsinfo.areaId = _that.areaId; //区域ID
+      jmsinfo.xxdz = _that.xxdz; //详细地址
+      jmsinfo.aleval = _that.aleval; //行政区级别
+      jmsinfo.yyjb = _that.yyjb; // 意愿级别
+      jmsinfo.manager = _that.manager; //业务经理
+      jmsinfo.ly = _that.ly; //来源
+      jmsinfo.listSysFileManage=_that.fileImgArr;     //图片 
       sessionStorage.setItem("jmsinfo", JSON.stringify(jmsinfo));
     },
     showJmsinfo() {
       //回显保存的jmsinfo
-      if (sessionStorage.getItem("info")) {
-        alert("OK");
-    
+          var _that=this;
+       if (!this.isNew&&!this.afterMap) {
+          
+      
+         var form=this.$route.params.jmsInfo;
+         _that.shlx= form.storeType; //商户类型
+         _that.mdName =form.storeName; //门店名称
+         _that.business=String(form.business).split(","); //经营内容
+         _that.type =form.type; //员工信息
+         _that.username=form.name; //姓名
+         _that.usertel= form.mobile ; //手机号
+         _that.areaId=form.areaId ; //区域ID
+         _that.xxdz=form.address; //详细地址
+         _that.aleval=form.areaLevel ; //行政区级别
+         _that.yyjb=form.intentLevel; // 意愿级别
+         _that.manager=form.manager; //业务经理
+         _that.ly= form.source; //来源
+         _that.fileImgArr=form.listSysFileManage;     //图片 
+      }else if(this.getSession("afterMap")){
+      
+          var form=JSON.parse(this.getSession("jmsinfo"));
+         _that.shlx= form.shlx; //商户类型
+         _that.mdName =form.mdName; //门店名称
+         _that.business=String(form.business).split(","); //经营内容
+         _that.type =form.type; //员工信息
+         _that.username=form.username; //姓名
+         _that.usertel= form.usertel ; //手机号
+         _that.areaId=form.areaId ; //区域ID
+         _that.xxdz=form.xxdz; //详细地址
+         _that.aleval=form.aleval ; //行政区级别
+         _that.yyjb=form.yyjb; // 意愿级别
+         _that.manager=form.manager; //业务经理
+         _that.ly= form.ly; //来源
+         _that.fileImgArr=form.fileImgArr;     //图片 
+        
+      }else{
+         
+         
       }
     }
   },
@@ -650,7 +646,7 @@ export default {
   mounted: function() {
         let  vm=this;
         var  data = this.getStatus(10038);
-      data.then(function(res) {
+         data.then(function(res) {
           vm.types=res;
          
         },
@@ -658,21 +654,45 @@ export default {
           console.log(err);
         }
       );
- 
- 
+       var  data = this.getStatus(10030);
+         data.then(function(res) {
+          vm.storeTypeBox=res;
+          },
+        function(err) {
+          console.log(err);
+        }
+      );
+      var  data = this.getStatus(10031);
+         data.then(function(res) {
+        
+          vm.businessBox=res;
+          },
+        function(err) {
+          console.log(err);
+        }
+      );
+      if(this.$route.params.hisPage){
+           this.isNew = false; 
+      }
+    this.showJmsinfo();
     //从意向加盟商跳转,flag=1，初始化页面数据
+    if(this.getSession("zdsite")){
+      this.xxdz=this.getSession("zdsite");
+    }
     if (this.$route.params.hasOwnProperty("storeCode")) {
       this.flag = "1";
       this.storeCode = this.$route.params.storeCode;
       sessionStorage.setItem("storeCode", this.storeCode);
-      this.getYxJmsInfo();
+   //   this.getYxJmsInfo();
     }else{
       this.storeCode=this.getSession("storeCode");
     }
    
   },
-  destroyed: function() {
+  destroyed:function() {
     this.saveJmsinfo();
+  //  this.removeItem("jmsinfo");
+  // this.removeItem("afterMap");
   }
 };
 
