@@ -3,6 +3,7 @@ import App from './App';
 import router from './router';
 import store from './vuex';
 import Mint from 'mint-ui';
+import {  host } from "@/api";
 // import global from './global'
 import BaiduMap from 'vue-baidu-map'
 // Vue.use(global)
@@ -41,7 +42,7 @@ router.beforeEach((to, from, next) => {
  
 Vue.prototype.getStatus=function(num){
   let newArr=[];
-  var t=fetch("http://192.168.20.149:8884/agent/dict/getByDictNo?keyNo=" + num,{method: "GET" })
+  var t=fetch(host+"/agent/dict/getByDictNo?keyNo=" + num,{method: "GET" })
   .then(res => res.text())
   .then(res => {
    var res=JSON.parse(res);
@@ -75,6 +76,23 @@ Vue.prototype.getStatus=function(num){
     return false;
   }
   
+};
+Vue.prototype.checkArea=function(areaId){
+  
+  var t=fetch(host+"/agent/org/orgdetail/{id}?id=" + areaId,{method: "GET" })
+  .then(res => res.text())
+  .then(res => {
+   var res=JSON.parse(res);
+    if(res.status==1){
+        return res.data.description;
+       
+      
+     }else{
+       console.log("失败")
+     }
+  })
+  return t;
+ 
 };
 new Vue({
   el: '#app',

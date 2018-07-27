@@ -156,6 +156,7 @@
             let site = addComp.province + addComp.city + addComp.district + addComp.street + addComp.streetNumber
             MessageBox({title: '', message: site, showCancelButton: true}).then((data) => {
               if (data == 'confirm') {
+                 sessionStorage.setItem('afterMap',true);
                 sessionStorage.setItem('zdsite', site)
                 sessionStorage.setItem('zdloc', pt.lng+','+pt.lat)
                 that.$router.back();

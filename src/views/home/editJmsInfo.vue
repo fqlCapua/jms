@@ -113,7 +113,7 @@
 					</div>
 
 				</div>
-				<div class="item clearfix">
+				<div class="item clearfix" v-show="MapStatus">
 					<span class="item-flag">详细地址：</span>
 				 
 						<div class="item-con" @click="goMap">
@@ -182,10 +182,10 @@ export default {
       isNew:true,
       afterMap:false,
       dindex:1,
-      pickerNum:3,
+      pickerNum:5,
       storeTypeBox:[],
       storeType:1,
-      busiessBox:[],
+      
       business:[1,2,3,4,5,6,7,8,9],
       areaText: "点击选择",
       aleval: "1",
@@ -296,6 +296,7 @@ export default {
       ],
       fileImgArr: [],
       empNum:1,
+      MapStatus:true,
 
     };
   },
@@ -306,8 +307,14 @@ export default {
     Popup,
     Picker
   },
-  methods: {
+  methods:{
+    transArea(num){
+      var _that=this;
+      var t=this.checkArea(num);
+       t.then(res=>_that.areaText=res,function(){});
+    },
     goMap(){
+      this.saveJmsinfo();
       this.addSession("afterMap",true);
       this.$router.push("/dwsite");
     },
@@ -399,6 +406,7 @@ export default {
               accessory:res.data[0].url,
               serviceTable:"appstoreImg"
             };
+            console.log(_that)
             _that.fileImgArr.push(imgobj);
            
           }
@@ -486,6 +494,7 @@ export default {
     },
     submit() {
       // 提交信息
+
       let _that = this;
     
       if (_that.shlx == 6) {
@@ -522,18 +531,19 @@ export default {
         return false;
       }
       let form = {};
-      if(!_that.isNew){
+      if(_that.isNew){
+         var url="/agent/proxy/addStoreInfo";
+        
+       }else{
         _that.storeCode=_that.getSession("storeCode");
         form.storeCode=_that.storeCode;
         var url="/agent/proxy/editStoreInfo";
-      }else{
-         var url="/agent/proxy/addStoreInfo";
       }
 
       
       form.storeType = _that.shlx; //商户类型
       form.storeName = _that.mdName; //门店名称
-      form.busiess = _that.busiess.join(","); //经营内容
+      form.business = _that.business.join(","); //经营内容
        form.type = _that.type; //员工信息
       form.name = _that.username; //姓名
       form.mobile = _that.usertel; //手机号
@@ -562,58 +572,22 @@ export default {
         .then(res => {
           var res = JSON.parse(res);
           if (res.status == 1) {
-            Toast("添加成功");
-             
+            if(url.indexOf("edit")>-1){
+              Toast("编辑成功");
+            }else{
+              Toast("添加成功");
+            }
+            
+              _that.$router.push("/yxjmslist");   
             _that.isNew=true;
           } else {
             Toast(res.message);
           }
         });
     },
- 
-    
-    saveJmsinfo() {
-      //销毁之前保存jms信息
-      let _that = this;
-      let jmsinfo = {};
-      jmsinfo.storeType = _that.shlx; //商户类型
-      jmsinfo.storeName = _that.mdName; //门店名称
-      jmsinfo.busiess = _that.busiess; //经营内容
-       jmsinfo.type = _that.type; //员工信息
-      jmsinfo.username = _that.username; //姓名
-      jmsinfo.usertel = _that.usertel; //手机号
-      jmsinfo.areaId = _that.areaId; //区域ID
-      jmsinfo.xxdz = _that.xxdz; //详细地址
-      jmsinfo.aleval = _that.aleval; //行政区级别
-      jmsinfo.yyjb = _that.yyjb; // 意愿级别
-      jmsinfo.manager = _that.manager; //业务经理
-      jmsinfo.ly = _that.ly; //来源
-      jmsinfo.listSysFileManage=_that.fileImgArr;     //图片 
-      sessionStorage.setItem("jmsinfo", JSON.stringify(jmsinfo));
-    },
-    showJmsinfo() {
-      //回显保存的jmsinfo
-          var _that=this;
-       if (!this.isNew&&!this.afterMap) {
-          
-      
-         var form=this.$route.params.jmsInfo;
-         _that.shlx= form.storeType; //商户类型
-         _that.mdName =form.storeName; //门店名称
-         _that.business=String(form.business).split(","); //经营内容
-         _that.type =form.type; //员工信息
-         _that.username=form.name; //姓名
-         _that.usertel= form.mobile ; //手机号
-         _that.areaId=form.areaId ; //区域ID
-         _that.xxdz=form.address; //详细地址
-         _that.aleval=form.areaLevel ; //行政区级别
-         _that.yyjb=form.intentLevel; // 意愿级别
-         _that.manager=form.manager; //业务经理
-         _that.ly= form.source; //来源
-         _that.fileImgArr=form.listSysFileManage;     //图片 
-      }else if(this.getSession("afterMap")){
-      
-          var form=JSON.parse(this.getSession("jmsinfo"));
+    getFromSession(){
+      let _that=this;
+          var form=JSON.parse(this.getSession("info"));
          _that.shlx= form.shlx; //商户类型
          _that.mdName =form.mdName; //门店名称
          _that.business=String(form.business).split(","); //经营内容
@@ -621,6 +595,7 @@ export default {
          _that.username=form.username; //姓名
          _that.usertel= form.usertel ; //手机号
          _that.areaId=form.areaId ; //区域ID
+         _that.transArea(form.areaId);
          _that.xxdz=form.xxdz; //详细地址
          _that.aleval=form.aleval ; //行政区级别
          _that.yyjb=form.yyjb; // 意愿级别
@@ -628,10 +603,58 @@ export default {
          _that.ly= form.ly; //来源
          _that.fileImgArr=form.fileImgArr;     //图片 
         
-      }else{
-         
-         
-      }
+    },
+    getFromPath(){
+           let _that=this;
+           var form=this.$route.params.jmsInfo;
+          _that.shlx= form.storeType; //商户类型
+          _that.mdName =form.storeName; //门店名称
+          _that.business=String(form.business).split(","); //经营内容
+          _that.type =form.type; //员工信息
+          _that.username=form.name; //姓名
+          _that.usertel= form.mobile ; //手机号
+         _that.areaId=form.areaId ; //区域ID
+         _that.transArea(form.areaId);
+        //_that.areaText=form.areaText ; //区域ID
+         _that.xxdz=form.address; //详细地址
+         _that.aleval=form.areaLevel ; //行政区级别
+         _that.yyjb=form.intentLevel; // 意愿级别
+         _that.manager=form.manager; //业务经理
+         _that.ly= form.source; //来源
+         _that.fileImgArr=form.listSysFileManage;       //图片 
+    },
+     saveJmsinfo(){
+      //销毁之前保存jms信息
+      let _that = this;
+      let jmsinfo = {};
+      jmsinfo.storeType = _that.shlx; //商户类型
+      jmsinfo.storeName = _that.mdName; //门店名称
+      jmsinfo.business = _that.business; //经营内容
+      jmsinfo.type = _that.type; //员工信息
+      jmsinfo.username = _that.username; //姓名
+      jmsinfo.usertel = _that.usertel; //手机号
+      jmsinfo.areaId = _that.areaId; //区域ID
+      jmsinfo.areaText = _that.areaText; //区域ID
+      jmsinfo.xxdz = _that.xxdz; //详细地址
+      jmsinfo.aleval = _that.aleval; //行政区级别
+      jmsinfo.yyjb = _that.yyjb; // 意愿级别
+      jmsinfo.areaText=_that.areaText;
+      jmsinfo.manager = _that.manager; //业务经理
+      jmsinfo.ly = _that.ly; //来源
+      jmsinfo.listSysFileManage=_that.fileImgArr;     //图片 
+      sessionStorage.setItem("jmsinfo",JSON.stringify(jmsinfo));
+    },
+    showJmsinfo(){
+    
+      //回显保存的jmsinfo
+          var _that=this;
+       if(this.isNew){
+             
+           
+        }else{
+          this.getFromPath();
+           this.MapStatus=false;
+         } 
     }
   },
   computed: {
@@ -671,8 +694,9 @@ export default {
           console.log(err);
         }
       );
-      if(this.$route.params.hisPage){
-           this.isNew = false; 
+      
+       if(this.$route.params.hisPage){
+           this.isNew = false;
       }
     this.showJmsinfo();
     //从意向加盟商跳转,flag=1，初始化页面数据
@@ -690,7 +714,7 @@ export default {
    
   },
   destroyed:function() {
-    this.saveJmsinfo();
+    //this.saveJmsinfo();
   //  this.removeItem("jmsinfo");
   // this.removeItem("afterMap");
   }

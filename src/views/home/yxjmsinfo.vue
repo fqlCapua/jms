@@ -131,7 +131,7 @@
           <span class="payBtn"   @click="gopayment">缴费</span>
         </div>
         <div class="item"   v-show="$route.params.status==2">
-          <router-link :to="{name:'extInfo', params: {storeCode:this.jmsinfo.storeCode,areaId:this.jmsinfo.areaId}}">
+          <router-link :to="{name:'extInfo', params:{storeCode:this.jmsinfo.storeCode,areaId:this.jmsinfo.areaId}}">
            <div class="item clearfix">
             <span class="changeInfoBtn"> 提交补充资料 </span>
           </div>
