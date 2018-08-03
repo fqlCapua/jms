@@ -70,6 +70,7 @@ export default {
       this.page = 1;
       if (arguments.length) {
         this.selectIndex =  arguments[0];
+      
         this.getJmsList();
       } else {
         this.selectIndex = "";
@@ -83,23 +84,26 @@ export default {
       if (this.selectIndex) {
         param.merStatus = this.selectIndex;
       }
-      if (this.selectCon) {
-        param.cusWish = this.selectCon;
-      }
+      // if (this.selectCon) {
+      //   param.cusWish = this.selectCon;
+      // }
       if (this.selectIndex == 0) {
         this.selectIndex = "";
       }
-      fetch( host + "/agent/proxy/getOpenStore?pageNum=" + this.page + "&length=1000&openStatus=" + this.selectIndex,
-        {
-          method: "GET"
-        }
-      )
+     let params=`?length=1000&pageNum=1&type=${this.getSession("listStatus")}&userId=${this.getSession("id")}&openStatus=${this.selectIndex}`;
+ 	  	fetch(host+"/agent/proxy/getOpenStore"+params,{
+						method:"GET",
+					  header:{
+							"x-token":this.getSession("token")
+							}
+					})
         .then(res => res.text())
         .then(res => {
           var res = JSON.parse(res);
           if (res.status == 1) {
             
             _that.jmslist = res.data.rows;
+           
           }
         });
     },

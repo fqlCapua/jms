@@ -8,13 +8,32 @@
 			<div id="yxjmslist" class="jmslist">
 				<!--导航-->
 				<div class="tab clearfix">
+					<div>
+
+					
 					<div class="item" @click="getYxJms()">
 						<span class="text" :class="[selectIndex==0?'c1':'']">全部</span>
 					</div>
-				    <div class="item" v-for="(item,index) in statusBox" :key="index" @click="getYxJms(item.id,item.name)"   >
+				    <!-- <div class="item" v-for="(item,index) in statusBox" :key="index" @click="getYxJms(item.id,item.name)"   >
                         <span class="text" :class="[selectIndex==item.id?'c1':'']">{{item.name}}</span>
-					</div> 
-				 
+					</div>  -->
+				   <div class="item" @click="getYxJms('1','待缴费')">
+						<span class="text" :class="[selectIndex==1?'c1':'']">待缴费</span>
+					</div>
+					<div class="item" @click="getYxJms('2','审核中')">
+						<span class="text" :class="[selectIndex==2?'c1':'']">审核中</span>
+					</div>
+					<div class="item" @click="getYxJms('3','签约中')">
+						<span class="text" :class="[selectIndex==3?'c1':'']">签约中</span>
+					</div>
+					<div class="item" @click="getYxJms('4','签约审核中')">
+						<span class="text" :class="[selectIndex==4?'c1':'']">签约审核中</span>
+					</div>
+					<div class="item" @click="getYxJms('5','已取消')">
+						<span class="text" :class="[selectIndex==5?'c1':'']">已取消</span>
+					</div>
+
+					</div>
 				</div>
 				<!--加盟商list-->
 				<div class="list">
@@ -99,37 +118,29 @@
 				this.page = 1
 				if(arguments.length) {
 					this.selectIndex = arguments[0]
-					this.selectCon = arguments[1]
+				 
 					this.getYxJmsList();
 				} else {
 					this.selectIndex='',
-					this.selectCon=''
+					 
 					this.getYxJmsList();
 				}
 			},
 			getYxJmsList() {
-				let param = {
-					pageNum: '1',
-					length: '1000',
-					agentStatus: this.selectIndex
-				}
-				if(this.selectCon) {
-					param.cusWish = this.selectCon
-				}
-				//           fetchGetData(host+"/agent/proxy/getStoreInfo?pageNum="+this.page+"&length=1000&agentStatus="+this.selectIndex)
-				//           .then((res) => {
-				//            if(res.status == 1){
-				//                 this.yxjmslist = res.data.rows
-				//            }
-				//          })
-
-				fetch(host + "/agent/proxy/getStoreInfo?pageNum=" + this.page + "&length=1000&agentStatus=" + this.selectIndex, {
-						method: "GET"
+				 
+				// if(this.selectCon) {
+				// 	param.cusWish = this.selectCon
+				// }
+                let param=`?length=1000&pageNum=1&type=${this.getSession("listStatus")}&userId=${this.getSession("id")}&status=${this.selectIndex}`;
+ 			 
+				fetch(host+"/agent/proxy/getMyIntentionCount"+param,{
+						method:"GET",
+					  header:{
+							"x-token":this.getSession("token")
+							}
 					}).then((res) => res.text())
 					.then((res) => {
-					
-						var res = JSON.parse(res);
-						 
+					 	var res = JSON.parse(res);
 						if(res.status == 1) {
 							this.yxjmslist = res.data.rows;
 						}
@@ -147,10 +158,10 @@
 							merNumber: '意向',
 							page: this.page
 						}
-						if(this.selectCon) {
-							param.cusWish = this.selectCon
-						}
-			          
+						// if(this.selectCon) {
+						// 	param.cusWish = this.selectCon
+						// }
+			          console.log(param.page)
 						fetch(host+"/agent/proxy/getStoreInfo?pageNum=" + this.page + "&length=1000&agentStatus=" + this.selectIndex, {
 							method: "GET"
 						}).then((res)=>res.text())

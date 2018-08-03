@@ -3,7 +3,7 @@
     <div id="wapper">
       <!---->
       <my-header :headerParam="headerParam">
-        <span class="state" v-show="$route.params.status==1"  @click="openshow('stateflag')">状态追踪</span>
+      
       </my-header>
       <!---->
 
@@ -11,9 +11,9 @@
       <div id="jmsinfo">
         <div class="jmsinfo-title clearfix">
                    商户信息
-          <span class="xq" @click="openshow('msgflag')"
+          <!-- <span class="xq" @click="openshow('msgflag')"
                 v-if="jmschangelist.length>0">{{jmsstates[jmschangelist[0].status - 1]}}</span>
-          <span class="xq" v-else></span>
+          <span class="xq" v-else></span> -->
         </div>
         <div class="item clearfix">
           <span class="item-flag">加盟商编号：</span>
@@ -115,20 +115,73 @@
             <p class="text">{{jmsinfo.gmtOpen}}</p>
           </div>
         </div> -->
-        <div class="item clearfix">
+        <div class="item clearfix" >
           <span class="item-flag">签约时间：</span>
           <div class="item-con">
             <p class="text">{{jmsinfo.gmtModify}}</p>
           </div>
         </div>
- 
+        <div v-show="changeHistory.length">
+            <div class="split"></div>
+        <div class="item historyTitle   clearfix"  >
+            <span class="item-flag"  >沟通记录</span>     
+           
+        </div>
+        <div class="clearfix historyItem" v-for="(item,index) in changeHistory" :key="index">
+             <div>
+                <span></span>
+                <span>{{item.gmtCreate}}</span>
+            </div>
+             <div>
+                <span>意向状态:</span>
+                <span>{{jmsS[item.followStatus-1]}}</span>
+            </div>
+             <div>
+                <span>沟通内容:</span>
+                <span>{{item.contents}}</span>
+            </div>
         
-        <div class="item"  v-show="$route.params.status==1">
-          
-        <router-link :to="{name:'editJmsInfo',params:{storeCode:this.jmsinfo.storeCode,jmsInfo:this.jmsinfo,hisPage:'change'}}">
+        </div>
+        </div>
+      
+         
+        <div v-show="paymentInfo.length" >
+          <div class="split"></div>
+          <div class="item historyTitle  clearfix"   >
+            <span class="item-flag"  >缴费信息</span>     
+         </div>
+        
+        <div class="clearfix historyItem" v-for="(item,index) in paymentInfo" :key="index"  >
+             <div>
+                <span>缴费金额</span>
+                <span>{{item.moneySum}}</span>
+            </div>
+             <div  v-show="item.payType!=null">
+                <span>缴费方式:</span>
+                <span>{{payType[item.payType-1].name}}</span>
+            </div>
+             <div  v-show="item.gmtPay!=null">
+                <span>缴费时间:</span>
+                <span> {{item.gmtPay}}</span>
+            </div>
+             <div v-show="item.payType!=null">
+                <span>审核时间:</span>
+                <span> {{item.payType}}</span>
+            </div>
+            <div v-show="jmsinfo.gmtSign!=null">
+                <span>签约时间:</span>
+                <span>{{jmsinfo.gmtSign}}</span>
+            </div>
+        </div>
+        </div>
+         
+
+        <div class="item">
+        <span class="state changeInfoBtn"  v-show="!$route.params.status"   @click="openshow('stateflag')">状态追踪</span> 
+        <router-link v-show="false" :to="{name:'editJmsInfo',params:{storeCode:this.jmsinfo.storeCode,jmsInfo:this.jmsinfo,hisPage:'change'}}">
           <span class="changeInfoBtn"  >修改资料</span>
         </router-link>
-          <span class="payBtn"   @click="gopayment">缴费</span>
+          <span class="payBtn changeInfoBtn" v-show="!$route.params.status"   @click="gopayment">发起缴费</span>
         </div>
         <div class="item"   v-show="$route.params.status==2">
           <router-link :to="{name:'extInfo', params:{storeCode:this.jmsinfo.storeCode,areaId:this.jmsinfo.areaId}}">
@@ -139,7 +192,7 @@
           <!-- <div class="changeInfoBtn" @click="gochangeInfo"></div> -->
         
         </div>
-        <div class="item"   v-show="$route.params.status==3">
+        <div class="item"   v-show="false">
           <div class="changeInfoBtn" @click="gochangeInfo">提交门店地址</div>
          
         </div>
@@ -185,6 +238,8 @@ export default {
         back: 1,
         state: 1
       },
+      paymentInfo:{},
+      changeHistory:[],
       agencyStatus: false,
       jmsid: "",
       storeCode: "", //路由传参加盟商id
@@ -214,7 +269,8 @@ export default {
       aaflag: false, //询问弹窗flag
       asflag: false, //成功弹窗
       changeObj: {}, //更改状态参数,
-      agencyBox: []
+      agencyBox: [],
+      payType:[],
     };
   },
   components: {
@@ -226,25 +282,24 @@ export default {
     Toast,
     MessageBox
   },
-  computed: {
-    
-  },
+  computed: {},
   mounted: function() {
-    
     //意向加盟商id
     let that = this;
-        
-     if(that.$route.params.storeCode==undefined){
-    that.storeCode = sessionStorage.getItem("storeCode");
-     }else{
-       window.sessionStorage.setItem("storeCode", that.$route.params.storeCode);
-     }
-     
-     
-     
-    
-      that.getYxJmsInfo();
- 
+
+    if (that.$route.params.storeCode == undefined) {
+      that.storeCode = sessionStorage.getItem("storeCode");
+    } else {
+      window.sessionStorage.setItem("storeCode", that.$route.params.storeCode);
+    }
+    var data=this.getStatus(10011);
+    data.then(res=>{
+      this.payType=res;
+    },err=>{
+      alert(err)
+    })
+    that.getYxJmsInfo();
+    that.showlevelStatus();
     that.getJmschangeList();
     that.getYwjlName();
   },
@@ -252,8 +307,6 @@ export default {
     // dmimgs() {
     //   //店面照片
 
-  
-       
     //       if (!this.allInfo.listSysFileManage){
     //       this.imgArr=[];
     //       }
@@ -276,7 +329,6 @@ export default {
           } else {
             Toast("发送失败");
           }
- 
         });
     },
     gochangeInfo() {
@@ -296,23 +348,19 @@ export default {
       this[attr] = false;
     },
     closeStatus(param) {
-      
-
       //关闭状态跟踪弹窗
       //status状态  notice备注
       this.stateflag = false;
       if (param != 0) {
-        
         this.aaflag = true;
         this.changeObj = param;
         //   this.closeAaflag(param)
         this._params = param;
       } else {
-       
       }
     },
     closeAaflag(param) {
-      var _that=this;
+      var _that = this;
       if (param) {
         let form = {};
         form.contents = this._params.notice;
@@ -322,6 +370,7 @@ export default {
         form.storeCode = this.jmsinfo.storeCode;
         //点击确定按钮
         //网络请求
+        console.log(form);
         fetch(host + "/agent/proxy/addStoreFollow", {
           method: "POST",
           headers: {
@@ -332,17 +381,38 @@ export default {
           .then(res => res.text())
           .then(res => {
             var res = JSON.parse(res);
-             if (res.status == 1) {
-               _that.asflag = true
-             window.setInterval(function(){_that.asflag = false},1500);
+            if (res.status == 1) {
+              _that.asflag = true;
+              window.setInterval(function() {
+                _that.asflag = false;
+              }, 1500);
             } else {
               Toast("修改失败");
               console.log(res);
             }
           });
       }
-        
+
       this.aaflag = false;
+    },
+    showlevelStatus() {
+      let _that = this;
+      if (this.$route.params.storeCode != undefined) {
+        var storeCode = this.$route.params.storeCode;
+      } else {
+        var storeCode = window.sessionStorage.getItem("storeCode");
+      }
+
+      fetch(host + "/agent/proxy/getStoreFollow?storeCode=" + storeCode, {
+        method: "GET"
+      })
+        .then(res => res.text())
+        .then(res => {
+          var res = JSON.parse(res);
+          if (res.status == 1) {
+            _that.changeHistory = res.data.rows;
+          }
+        });
     },
     closeAsflag() {
       //关闭成功弹窗
@@ -352,32 +422,32 @@ export default {
     },
     //获取加盟商信息
     getYxJmsInfo() {
-      if(this.$route.params.storeCode!=undefined){
-         var storeCode=this.$route.params.storeCode;
-      }else{
-        var storeCode=window.sessionStorage.getItem("storeCode");
+      if (this.$route.params.storeCode != undefined) {
+        var storeCode = this.$route.params.storeCode;
+      } else {
+        var storeCode = window.sessionStorage.getItem("storeCode");
       }
-    
 
       //获取加盟商信息
       let _that = this;
-      fetch(host + "/agent/proxy/findByStoreCode?storeCode=" +  storeCode, {
+      fetch(host + "/agent/proxy/getStoreDetail?storeCode=" + storeCode, {
         method: "GET",
+        headers: {
+          "x-token": this.getSession("token")
+        },
         async: false
       })
         .then(res => res.text())
         .then(res => {
           var res = JSON.parse(res);
           if (res.status == 1) {
-            // console.log(res);
-        
             _that.allInfo = res.data;
             _that.jmsinfo = res.data.storeInfo;
-          
-          _that.addSession("info",JSON.stringify(res.data.storeInfo));
+            _that.paymentInfo=res.data.listAccCollections;
+            _that.addSession("Allinfo",JSON.stringify(res.data));
+            _that.addSession("info", JSON.stringify(res.data.storeInfo));
           }
         });
-      
     },
     getJmschangeList() {
       // 获取加盟商更改记录
@@ -423,16 +493,44 @@ export default {
 <style lang="less" scoped>
 .changeInfoBtn,
 .payBtn {
-  font-size:0;
-  padding:0 20px;
+  font-size: 0;
+  padding: 0 20px;
   display: inline-block;
   font-size: 14px;
   background-color: #4990e2;
   line-height: 35px;
- 
+  width: 45%;
   text-align: center;
   color: #fff;
   border-radius: 5px;
+}
+.historyTitle {
+  font-size: 0.4rem;
+  font-weight: bold;
+  margin-bottom:15px;
+}
+.historyItem {
+  color: #333333;
+  font-size: 0.28rem;
+  border: 1px solid #cccccc;
+  width: 90%;
+  margin:15px auto;
+  text-indent: 20px;
+  padding:0 10px;
+  &>div>span{
+     color: #333333;
+    line-height:0.6rem;
+  }
+  & div:nth-child(1){
+     color: #000;
+
+  }
+}
+.split{
+  height:1px;
+  clear: both;
+  margin: 15px 0 0 0;
+  border-top: 1px solid #cccccc;
 }
 </style>
 

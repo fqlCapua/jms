@@ -10,7 +10,7 @@
             {{item}}
           </span>
         </div>
-        <p class="text">添加备注</p>
+        <p class="text">沟通内容</p>
         <div class="textarea-con">
           <textarea v-model="textareacon" v-on:keydown="jltext" name="" rows="" cols="" placeholder="请添加备注..."></textarea>
           <p class="num">({{textareall}}/200)</p>

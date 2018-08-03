@@ -24,9 +24,9 @@
               required: true
           },
           selectIndex: {
-              
+              type: String,
               default:1,
-              required: false
+              required: true
           }
         },
         data(){
@@ -41,28 +41,16 @@
         },
         computed: {
           jmsStateClass () {
-          
-            if(this.selectIndex==""){
-            this.selectIndex=0;
-            }
-       
-            // 加盟商 开店 状态
+             // 加盟商 开店 状态
             if(this.jmsflag == 'jms'){
+             
               return 'zs-state' + this.jsminfo.merStatus
             }else{
+       
               let i = 0;
               let wish=this.jsminfo.intentLevel;
               
-              if(wish == '1'){
-                i = 1;
-              }else if(wish == '2'){
-                i = 2
-              }else if(wish == '3'){
-                i = 3
-              }else{
-                i = 4
-              }
-              return 'yx-state' + i
+              return 'yx-state' + wish
             }
           },
           pathname () {

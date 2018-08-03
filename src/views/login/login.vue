@@ -77,7 +77,7 @@
             Toast('登录成功')
               _that.$store.dispatch('userLogin',JSON.parse(res.data));
               _that.addSession("us",res.data);
-              _that.$store.state.token=JSON.parse(res.data).token;
+ 
               _that.$router.push({path: '/'})
             }else {
               Toast('登陆失败'+res.message);
