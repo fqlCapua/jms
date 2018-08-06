@@ -47,10 +47,10 @@
               return 'zs-state' + this.jsminfo.merStatus
             }else{
        
-              let i = 0;
-              let wish=this.jsminfo.intentLevel;
+              // let i = 0;
+              // let wish=this.jsminfo.intentLevel;
               
-              return 'yx-state' + wish
+              // return 'yx-state' + wish
             }
           },
           pathname () {

@@ -53,7 +53,7 @@
         <div class="item clearfix">
 					<span class="item-flag">联系地址：</span>
 					<div class="item-con">
-                 <input type="text" placeholder="请输入详细地址" name="points" class="input  md-name"   />
+                 <input type="text" v-model="xxdz" placeholder="请输入详细地址" name="points" class="input  md-name"   />
 				 	</div>
 				</div>
         	<div class="item clearfix">
@@ -145,13 +145,13 @@
         <div class="item clearfix">
 					<span class="item-flag">所属代理商：</span>
 					<div class="item-con">
-						<input type="text"   minlength="11" maxlength="11" class="input md-name" placeholder="妙优车旗舰店" />
+						<input type="text"    v-model="belong" class="input md-name" placeholder="妙优车旗舰店" />
 					</div>
 				</div>
         <div class="item clearfix">
 					<span class="item-flag">开业地址：</span>
 					<div class="item-con">
-                 <input type="text" placeholder="请输入详细地址" name="points" class="input  md-name"   />
+                 <input type="text" v-model="openAddress" placeholder="请输入详细地址" name="points" class="input  md-name"   />
 				 	</div>
 				</div>
         	<!-- <div class="item clearfix" v-show="MapStatus">
@@ -178,7 +178,7 @@
 				<div class="item clearfix">
 					<span class="item-flag">业务经理：</span>
 					<div class="item-con clearfix">
-                 <input type="text" placeholder="请输入姓名" name="points" class="input  md-name"   />
+                 <!-- <input type="text" disabled="1" placeholder="请输入姓名" name="points" class="input  md-name"   /> -->
 					  	<!-- <p class="ywjl">{{ywjl}}</p> -->
 					</div>
 				</div>
@@ -240,6 +240,8 @@ export default {
         setting: 0,
         back: 1
       },
+      openAddress:"",
+      belong:"",
       textareacon: "",
       disableStatus: false, //备注
       thereStore: [{ status: true, name: "是" }, { status: false, name: "否" }], //是否有门店
@@ -323,7 +325,7 @@ export default {
       username: "", //用户姓名
       usertel: "", //用户手机号
       xzqjb: "", //行政区级别
-      xxdz: "点击定位当前位置", //详细地址
+      xxdz: " ", //详细地址
       yyjb: 1, //意愿级别
       ywjl: "", //业务经理
       sjjl: "", //上级经理
@@ -490,8 +492,9 @@ export default {
               accessory: res.data[0].url,
               serviceTable: "appstoreImg"
             };
-            console.log(_that);
+            
             _that.fileImgArr.push(imgobj);
+            console.log(_that.fileImgArr);
           }
         });
     },
@@ -621,8 +624,10 @@ export default {
       form.address = _that.xxdz; //详细地址
       form.areaLevel = _that.aleval; //行政区级别
       form.intentLevel = _that.yyjb; // 意愿级别
-      form.manager = _that.manager; //业务经理
-      form.source = _that.ly; //来源
+      form.openAddress=_that.openAddress  //开业地址
+      form.belong=_that.belong //所属代理商
+      form.memo = _that.beizhu; //业务经理
+    //  form.source = _that.ly; //来源
       form.listSysFileManage = _that.fileImgArr; //图片
 
       for (let p in form) {

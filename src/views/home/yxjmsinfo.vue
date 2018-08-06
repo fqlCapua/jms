@@ -22,6 +22,12 @@
           </div>
         </div>
         <div class="item clearfix">
+          <span class="item-flag">代理商类型：</span>
+          <div class="item-con">
+            <p class="text">{{store[jmsinfo.type-1]}}</p>
+          </div>
+        </div>
+        <div class="item clearfix">
           <span class="item-flag">商户类型：</span>
           <div class="item-con">
             <p class="text">{{storeType[jmsinfo.storeType]}}</p>
@@ -33,14 +39,14 @@
             <p class="text">{{jmsinfo.storeName}}</p>
           </div>
         </div>
-       
-        <div class="item clearfix">
-          <span class="item-flag">&#x3000;&#x3000;来源：</span>
-          <div class="item-con">
-            <p class="text">{{source[jmsinfo.source]}}</p>
+          <div class="item clearfix">
+          <span class="item-flag">店面照片：</span>
+          <div class="item-con dm-img-list">
+            <img v-for="(item,index) in imgArr" :key="index" :src="item.accessory" class="dm-img" /> 
           </div>
         </div>
-        
+  
+  
         <div class="line"></div>
         <div class="item clearfix item2">
           <span class="item-flag">&#x3000;&#x3000;姓名：</span>
@@ -67,12 +73,7 @@
             <p class="text">{{aleval[jmsinfo.areaLevel]}}</p>
           </div>
         </div>
-        <!-- <div class="item clearfix">
-          <span class="item-flag">店面照片：</span>
-          <div class="item-con dm-img-list">
-            <img v-for="(item,index) in imgArr" :key="index" :src="item.accessory" class="dm-img"></img>
-          </div>
-        </div> -->
+      
         <div class="item clearfix">
           <span class="item-flag">客户意愿：</span>
           <div class="item-con">
@@ -181,7 +182,7 @@
         <router-link v-show="false" :to="{name:'editJmsInfo',params:{storeCode:this.jmsinfo.storeCode,jmsInfo:this.jmsinfo,hisPage:'change'}}">
           <span class="changeInfoBtn"  >修改资料</span>
         </router-link>
-          <span class="payBtn changeInfoBtn" v-show="!$route.params.status"   @click="gopayment">发起缴费</span>
+          <span class="payBtn changeInfoBtn" v-show="!$route.params.status"   @click="payBoxShow">发起缴费</span>
         </div>
         <div class="item"   v-show="$route.params.status==2">
           <router-link :to="{name:'extInfo', params:{storeCode:this.jmsinfo.storeCode,areaId:this.jmsinfo.areaId}}">
@@ -199,7 +200,32 @@
        
       </div>
 
-   
+     <div class="payForm" v-show="payBoxStatus" >
+        <mt-header title="发起缴费">
+         <mt-button @click="payBoxHide"  icon="back" slot="left">返回</mt-button>
+         
+         </mt-header>
+        <div class="payBody">
+          <mt-field label="代理商类型:" readonly type="text" >{{store[jmsinfo.type-1]}}</mt-field>
+          <mt-field label="签约类型:" readonly type="text" value="">{{["个人","公司"][jmsinfo.storeType-1]}}</mt-field>
+          <mt-field label="代理区域:" readonly type="text">{{jmsinfo.storeAreaDescribe}}</mt-field>
+          <mt-field label="姓名:" readonly type="text" >{{jmsinfo.name}}</mt-field>
+          <mt-field label="联系电话:" readonly type="text"  slot="left">{{jmsinfo.mobile}}</mt-field>
+          <mt-field label="缴费类型:" readonly >
+             <select class="selectPay" readonly  v-model="receiveProject">
+                        <option v-for="(item,index) in jiaofeiType" v-bind:value="item.id" :key="index">{{item.name}}</option>
+							</select>
+          </mt-field>
+          <mt-field label="缴费金额:" type="text" placeholder="请输入缴费金额"></mt-field>
+         
+          <mt-radio  v-model="value" :options="['线上支付','线下支付']"></mt-radio>
+
+          
+      <span  class="payBtn" >确定</span>
+       <span class="payBtn"  >取消</span>
+        </div>
+       
+     </div>
       <!--兴趣备注-->
       <msg-bz v-if="jmschangelist.length>0" :msgtext="jmschangelist[0].notice" :msgflag="msgflag"
               v-on:my-event="closeshow('msgflag')"></msg-bz>
@@ -228,7 +254,7 @@ import AlertAsk from "@/components/alertask";
 import AlertSuc from "@/components/alertsuc";
 import Vue from "vue";
 import qs from "qs";
-import { Toast, MessageBox } from "mint-ui";
+import { Header,Button , Field, Radio, Toast, MessageBox } from "mint-ui";
 export default {
   data() {
     return {
@@ -238,8 +264,13 @@ export default {
         back: 1,
         state: 1
       },
-      paymentInfo:{},
-      changeHistory:[],
+      store: ["二级代理商", "一级代理商"],
+      jiaofeiType: [],
+      pType: "1",
+      receiveProject: "1",
+      payBoxStatus: false, //发起缴费
+      paymentInfo: {},
+      changeHistory: [],
       agencyStatus: false,
       jmsid: "",
       storeCode: "", //路由传参加盟商id
@@ -270,7 +301,8 @@ export default {
       asflag: false, //成功弹窗
       changeObj: {}, //更改状态参数,
       agencyBox: [],
-      payType:[],
+      payType: [],
+      imgArr: []
     };
   },
   components: {
@@ -280,7 +312,11 @@ export default {
     AlertAsk,
     AlertSuc,
     Toast,
-    MessageBox
+    MessageBox,
+    Header,
+    Field,
+    Radio,
+    Button 
   },
   computed: {},
   mounted: function() {
@@ -292,18 +328,40 @@ export default {
     } else {
       window.sessionStorage.setItem("storeCode", that.$route.params.storeCode);
     }
-    var data=this.getStatus(10011);
-    data.then(res=>{
-      this.payType=res;
-    },err=>{
-      alert(err)
-    })
+    var data = this.getStatus(10011);
+    data.then(
+      res => {
+        console.log(res);
+        this.payType = res;
+      },
+      err => {
+        alert(err);
+      }
+    );
+    var data = this.getStatus(10008);
+    data.then(
+      res => {
+        this.jiaofeiType = res;
+         
+      },
+      err => {
+        alert(err);
+      }
+    );
+
     that.getYxJmsInfo();
+
     that.showlevelStatus();
     that.getJmschangeList();
     that.getYwjlName();
   },
   methods: {
+    payBoxShow() {
+      this.payBoxStatus = true;
+    },
+    payBoxHide() {
+      this.payBoxStatus = false;
+    },
     // dmimgs() {
     //   //店面照片
 
@@ -443,8 +501,9 @@ export default {
           if (res.status == 1) {
             _that.allInfo = res.data;
             _that.jmsinfo = res.data.storeInfo;
-            _that.paymentInfo=res.data.listAccCollections;
-            _that.addSession("Allinfo",JSON.stringify(res.data));
+            _that.paymentInfo = res.data.listAccCollections;
+            _that.imgArr = res.data.listSysFileManage;
+            _that.addSession("Allinfo", JSON.stringify(res.data));
             _that.addSession("info", JSON.stringify(res.data.storeInfo));
           }
         });
@@ -503,34 +562,58 @@ export default {
   text-align: center;
   color: #fff;
   border-radius: 5px;
+  outline: none;
 }
 .historyTitle {
   font-size: 0.4rem;
   font-weight: bold;
-  margin-bottom:15px;
+  margin-bottom: 15px;
 }
 .historyItem {
   color: #333333;
   font-size: 0.28rem;
   border: 1px solid #cccccc;
   width: 90%;
-  margin:15px auto;
+  margin: 15px auto;
   text-indent: 20px;
-  padding:0 10px;
-  &>div>span{
-     color: #333333;
-    line-height:0.6rem;
+  padding: 0 10px;
+  & > div > span {
+    color: #333333;
+    line-height: 0.6rem;
   }
-  & div:nth-child(1){
-     color: #000;
-
+  & div:nth-child(1) {
+    color: #000;
   }
 }
-.split{
-  height:1px;
+.split {
+  height: 1px;
   clear: both;
   margin: 15px 0 0 0;
   border-top: 1px solid #cccccc;
+}
+.payForm {
+  position: fixed;
+  bottom: 0;
+  background-color: #fff;
+  text-align: center;
+
+  height: 100vh;
+  z-index: 100000;
+  width: 100%;
+}
+.payBody {
+  margin: 30px auto;
+}
+.selectPay{
+  line-height:0.48rem;
+  font-size:0.3rem;
+  
+}.selectPay:active{
+    border: none;
+}
+.radioPay{
+ 
+  border: 1px solid #000;
 }
 </style>
 
