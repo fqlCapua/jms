@@ -18,15 +18,29 @@
         <div class="jms">
           <div class="jms-data clearfix">
             <div class="jms-data-item">
-              <p class="text1">{{myJmsAll}}</p>
-              <p class="text2">我的加盟商</p>
+              <p class="text1">{{myJms.XXD.allCount}}</p>
+              <p class="text2">我的一级代理商</p>
             </div>
             <router-link :to="{path:'/yxjmslist'}" class="jms-data-item">
-              <p class="text1">{{myJms.TOTAL}}</p>
+              <p class="text1">{{myJms.XXD.intention}}</p>
               <p class="text2">意向加盟商</p>
             </router-link>
             <router-link :to="{path:'/jmslist'}" class="jms-data-item">
-              <p class="text1">{{myJms.TOTAL_FORMAL}}</p>
+              <p class="text1">{{myJms.XXD.official}}</p>
+              <p class="text2">正式加盟商</p>
+            </router-link>
+          </div>
+          <div class="jms-data clearfix">
+            <div class="jms-data-item">
+              <p class="text1">{{myJms.TYD.allCount}}</p>
+              <p class="text2">我的二级代理商</p>
+            </div>
+            <router-link :to="{path:'/yxjmslist'}" class="jms-data-item">
+              <p class="text1">{{myJms.TYD.intention}}</p>
+              <p class="text2">意向加盟商</p>
+            </router-link>
+            <router-link :to="{path:'/jmslist'}" class="jms-data-item">
+              <p class="text1">{{myJms.TYD.official}}</p>
               <p class="text2">正式加盟商</p>
             </router-link>
           </div>
@@ -40,6 +54,9 @@
             <div class="jms-rq-item">
               <span :class="[dateIndex=='3'?'c1':'']" @click="selectDate('3')">本月</span>
             </div>
+            <div class="jms-rq-item">
+              <span :class="[dateIndex=='4'?'c1':'']" @click="selectDate('4')">本季</span>
+            </div>
           </div>
           <div class="jms-map clearfix">
             <!--没有数据-->
@@ -52,7 +69,8 @@
               <p class="t1">您目前还没有加盟商，加油哦~</p>
             </div>
             <!--有数据-->
-            <div class="jms-map-con jms-map-con2" id="echart" v-if="yesdata"></div>
+            <div class="jms-map-con jms-map-con2" id="chart1" v-if="yesdata"></div>
+            <div class="jms-map-con jms-map-con2" id="chart2" v-if="yesdata"></div>
           </div>
         </div>
       </div>
@@ -65,7 +83,7 @@
 <script>
   import MyFooter from '@/components/footer'
   import MyHeader from '@/components/header'
-  import {fetchPostData,host} from '@/api'
+  import {fetchPostData,fetchGetData,host} from '@/api'
   import qs from 'qs'
   import moment from 'moment'
   export default{
@@ -78,7 +96,18 @@
           back: 0
         },
         userInfo: {},  //用户信息
-        myJms: {},   //我的加盟商总数
+        myJms: {
+          XXD: {
+            "allCount": 0,
+            "intention": 0,
+            "official": 0
+          },
+          TYD: {
+            "allCount": 0,
+            "intention": 0,
+            "official": 0
+          }
+        },   //我的加盟商总数
         yesdata: true,  //判断是否有数据
 
         alldata: {},  // 所有jms数据
@@ -86,7 +115,8 @@
         zsdata: [],  //正式数据
         xDate: {},  //x轴日期
         dateIndex: '1',
-        myChart: null
+        myChart1: null,
+        myChart2: null
       }
     },
     components: {MyFooter, MyHeader},
@@ -94,10 +124,10 @@
       //获取用户信息
       this.getUserInfo()
       //获取我的加盟商
-      //this.getMyJms()
+      this.getMyJms()
       //根据日期获取加盟商
-      //let date = moment().format('YYYY-MM-DD');
-    //  this.getMyJmsByDate(date, date)
+      // let date = moment().format('YYYY-MM-DD');
+      this.getJmsByDate(1)
       //
     },
     computed:{
@@ -110,10 +140,10 @@
         v = v.toString()
         return v.charAt(0)
       },
-      myJmsAll () {
-        //我的加盟商
-        return parseInt(this.myJms.TOTAL) + parseInt(this.myJms.TOTAL_FORMAL)
-      }
+      // myJmsAll () {
+      //   //我的加盟商
+      //   return parseInt(this.myJms.TOTAL) + parseInt(this.myJms.TOTAL_FORMAL)
+      // }
     },
     methods: {
       initChart () {
@@ -220,13 +250,327 @@
         
       },
       getMyJms () {  //我的加盟商
-        fetchPostData(host+'/api/queryMyMers', {}).then((data) => {
-          if (data.code == 0) {
-            this.myJms = data.merMap
-          } else {
-
+        fetchGetData(host+'/agent/proxy/myAllStoreCount?userId=' + this.userInfo.id + '&x-token=' + this.userInfo.token).then((data) => {
+          if(data.status === 1) {
+            this.myJms = data.data;
           }
         })
+      },
+      getJmsByDate(status, startTime, endTime) {
+        fetchGetData(host + '/agent/proxy/getMyStoreCount?userId=' + this.userInfo.id + '&status=' + status + '&x-token=' + this.userInfo.token).then(data => {
+          if(data.status === 1) {
+            if(this.myChart1) this.myChart1.dispose();
+            if(this.myChart2) this.myChart2.dispose();
+            this.myChart1 = echarts.init(document.getElementById('chart1'));
+            this.myChart2 = echarts.init(document.getElementById('chart2'));
+            let option1;
+            let option2;
+            if(status === 1) {
+              let chartData1;
+              let chartData2;
+              if(data.data.length) {
+                chartData1 = [{name:'意向加盟商', value: data.data[0].intention}, {name:'正式加盟商 ', value: data.data[0].official}];
+                chartData2 = [{name:'已开业', value: data.data[0].open}, {name:'未开业 ', value: data.data[0].noOpen}];
+              } else {
+                chartData1 = [{name:'意向加盟商', value: 0}, {name:'正式加盟商', value: 0}];
+                chartData2 = [{name:'已开业', value: 0}, {name:'未开业', value: 0}];
+              }
+              option1 = {
+                series: [{
+                  name: '意向&正式',
+                  type: 'pie',
+                  radius: '50%',
+                  label: {
+                    normal: {
+                      position: 'inner',
+                      formatter: e => {
+                        // if(e.data.value === 0) return '';
+                        return e.data.name + '\n' + e.data.value;
+                      }
+                    }
+                  },
+                  data: chartData1
+                }]
+              };
+              option2 = {
+                series: [{
+                  name: '开业&未开业',
+                  type: 'pie',
+                  radius: '50%',
+                  label: {
+                    normal: {
+                      position: 'inner',
+                      formatter: e => {
+                        // if(e.data.value === 0) return '';
+                        return e.data.name + '\n' + e.data.value;
+                      }
+                    }
+                  },
+                  data: chartData2
+                }]
+              };
+            } else {
+              let xData = [];
+              let intentionData = [];
+              let officialData = [];
+              let openData = [];
+              let noOpenData = [];
+              let i = startTime;
+              while(i !== endTime) {
+                xData.push(i);
+                i = moment(i, 'YYYY-MM-DD').add(1, 'days').format('YYYY-MM-DD');
+              }
+              xData.push(i);
+              xData.forEach(item => {
+                let contain = false;
+                for(let j = 0; j < data.data.length; j++) {
+                  if(item === moment(data.data[j].day).format('YYYY-MM-DD')) {
+                    contain = true;
+                    intentionData.push(data.data[j].intention);
+                    officialData.push(data.data[j].official);
+                    openData.push(data.data[j].open);
+                    noOpenData.push(data.data[j].noOpen);
+                    break;
+                  }
+                }
+                if(!contain) {
+                  intentionData.push(0);
+                  officialData.push(0);
+                  openData.push(0);
+                  noOpenData.push(0);
+                }
+              })
+              console.log(intentionData)
+              console.log(officialData)
+              console.log(openData)
+              console.log(noOpenData)
+              option1 = {
+                grid: {
+                  left: '3%',
+                  right: '4%',
+                  bottom: '3%',
+                  containLabel: true
+                },
+                legend: {
+                    icon: 'rect',
+                    itemWidth: 14,
+                    itemHeight: 5,
+                    itemGap: 13,
+                    data: ['意向加盟商', '正式加盟商'],
+                    right: '4%',
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#000'
+                    }
+                },
+                xAxis: {
+                  type: 'category',
+                  data: xData,
+                  axisLabel: {
+                    formatter: e => {
+                      let arr = e.split('-')
+                      return arr[1] + '-' + arr[2]
+                    }
+                  }
+                },
+                yAxis: {
+                  type: 'value',
+                  name: '单位：个',
+                  axisTick: {
+                    show: false
+                  },
+                  axisLabel: {
+                    margin: 10,
+                    textStyle: {
+                      fontSize: 14
+                    }
+                  },
+                  minInterval: 1
+                },
+                series: [
+                  {
+                    name: '意向加盟商',
+                    type: 'line',
+                    smooth: true,
+                    showSymbol: false,
+                    lineStyle: {
+                      normal: {
+                        width: 1
+                      }
+                    },
+                    areaStyle: {
+                      normal: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                          offset: 0,
+                          color: 'rgba(137, 189, 27, 0.3)'
+                        }, {
+                          offset: 0.8,
+                          color: 'rgba(137, 189, 27, 0)'
+                        }], false),
+                        shadowColor: 'rgba(0, 0, 0, 0.1)',
+                        shadowBlur: 10
+                      }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: 'rgb(137,189,27)',
+                            borderColor: 'rgba(137,189,2,0.27)',
+                            borderWidth: 12
+
+                        }
+                    },
+                    data: intentionData
+                  },
+                  {
+                    name: '正式加盟商',
+                    type: 'line',
+                    smooth: true,
+                    showSymbol: false,
+                    lineStyle: {
+                      normal: {
+                        width: 1
+                      }
+                    },
+                    areaStyle: {
+                        normal: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: 'rgba(0, 136, 212, 0.3)'
+                            }, {
+                                offset: 0.8,
+                                color: 'rgba(0, 136, 212, 0)'
+                            }], false),
+                            shadowColor: 'rgba(0, 0, 0, 0.1)',
+                            shadowBlur: 10
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: 'rgb(0,136,212)',
+                            borderColor: 'rgba(0,136,212,0.2)',
+                            borderWidth: 12
+                        }
+                    },
+                    data: officialData
+                  }
+                ]
+              };
+              option2 = {
+                grid: {
+                  left: '3%',
+                  right: '4%',
+                  bottom: '3%',
+                  containLabel: true
+                },
+                legend: {
+                    icon: 'rect',
+                    itemWidth: 14,
+                    itemHeight: 5,
+                    itemGap: 13,
+                    data: ['已开业加盟商', '未开业加盟商'],
+                    right: '4%',
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#000'
+                    }
+                },
+                xAxis: {
+                  type: 'category',
+                  data: xData,
+                  axisLabel: {
+                    formatter: e => {
+                      let arr = e.split('-')
+                      return arr[1] + '-' + arr[2]
+                    }
+                  }
+                },
+                yAxis: {
+                  type: 'value',
+                  name: '单位：个',
+                  axisTick: {
+                    show: false
+                  },
+                  axisLabel: {
+                    margin: 10,
+                    textStyle: {
+                      fontSize: 14
+                    }
+                  },
+                  minInterval: 1
+                },
+                series: [
+                  {
+                    name: '已开业加盟商',
+                    type: 'line',
+                    smooth: true,
+                    showSymbol: false,
+                    lineStyle: {
+                      normal: {
+                        width: 1
+                      }
+                    },
+                    areaStyle: {
+                      normal: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                          offset: 0,
+                          color: 'rgba(137, 189, 27, 0.3)'
+                        }, {
+                          offset: 0.8,
+                          color: 'rgba(137, 189, 27, 0)'
+                        }], false),
+                        shadowColor: 'rgba(0, 0, 0, 0.1)',
+                        shadowBlur: 10
+                      }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: 'rgb(137,189,27)',
+                            borderColor: 'rgba(137,189,2,0.27)',
+                            borderWidth: 12
+
+                        }
+                    },
+                    data: openData
+                  },
+                  {
+                    name: '未开业加盟商',
+                    type: 'line',
+                    smooth: true,
+                    showSymbol: false,
+                    lineStyle: {
+                      normal: {
+                        width: 1
+                      }
+                    },
+                    areaStyle: {
+                        normal: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: 'rgba(0, 136, 212, 0.3)'
+                            }, {
+                                offset: 0.8,
+                                color: 'rgba(0, 136, 212, 0)'
+                            }], false),
+                            shadowColor: 'rgba(0, 0, 0, 0.1)',
+                            shadowBlur: 10
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: 'rgb(0,136,212)',
+                            borderColor: 'rgba(0,136,212,0.2)',
+                            borderWidth: 12
+                        }
+                    },
+                    data: noOpenData
+                  }
+                ]
+              };
+            }
+            this.myChart1.setOption(option1);
+            this.myChart2.setOption(option2);
+          }
+        });
       },
       getMyJmsByDate (startTime, endTime, date) {  //根据日期查询我的加盟商
         let par = `startTime=${startTime}&endTime=${endTime}`;
@@ -456,166 +800,33 @@
       //选择 ，本周 本月 本季度
       selectDate (i) {
         this.dateIndex = i
-        let now = moment();
         let startTime;
         let endTime;
         switch (i) {
           case '1':
-            startTime = now.format('YYYY-MM-DD');
-            endTime = now.format('YYYY-MM-DD');
+            startTime = moment().format('YYYY-MM-DD');
+            endTime = moment().format('YYYY-MM-DD');
             break;
           case '2':
-            endTime = now.format('YYYY-MM-DD');
-            startTime = now.subtract(6, 'days').format('YYYY-MM-DD');
+            let weekOfday = moment().format('E');//计算今天是这周第几天
+            startTime = moment().subtract(weekOfday-1, 'days').format('YYYY-MM-DD');//周一日期
+            endTime = moment().add(7-weekOfday, 'days').format('YYYY-MM-DD');//周日日期
             break;
           case '3':
-            endTime = now.format('YYYY-MM-DD');
-            startTime = now.subtract(29, 'days').format('YYYY-MM-DD');
+            endTime = moment().format('YYYY-MM-DD');
+            startTime = moment().date(1).format('YYYY-MM-DD');
+            break;
+          case '4':
+            let currentQuarter = moment().quarter() // 当前是第几季度
+            let endMonth = 3 * parseInt(currentQuarter);
+            let startMonth = 3 * parseInt(currentQuarter) - 3;
+            startTime = moment().month(startMonth).date(1).format('YYYY-MM-DD');
+            endTime = moment().date(1).month(endMonth).subtract(1, 'days').format('YYYY-MM-DD');
             break;
         }
-        this.getMyJmsByDate(startTime, endTime, now)
+
+        this.getJmsByDate(parseInt(i), startTime, endTime);
         // this.getAllDate(i)
-      },
-      //查旬  本周 本月 本季度 的数据
-      getAllDate (flag) {
-        var that = this
-        //意向数据
-        var yx = []
-        var yxArr = []
-        //正式数据
-        var zs = []
-        var zsArr = []
-        if (flag == 1) {  //本周
-          let tempArr = []
-          yx = this.alldata.week
-          zs = this.alldata.weekFormals
-          for (let i = 0; i < 7; i++) {
-            yxArr.push(0)
-            zsArr.push(0)
-            tempArr.push(this.getWeek(i))
-          }
-          //x轴的日期
-          this.xDate = tempArr
-          for (let item of yx) {
-            tempArr.forEach(function (v, i) {
-              if (item.date == v) {
-                yxArr[i] = item.TOTAL_FORMAL
-              }
-            })
-          }
-          for (let item of zs) {
-            tempArr.forEach(function (v, i) {
-              if (item.date == v) {
-                zsArr[i] = item.TOTAL_FORMAL
-              }
-            })
-          }
-        }
-        //本月 4周
-        if (flag == 2) {
-          yx = this.alldata.months
-          zs = this.alldata.monthsFormals
-          let min = this.getYearWeek(this.getCurrentMonthFirst())
-          let max = this.getYearWeek(this.getCurrentMonthLast())
-          let tempArr = []
-          for (min; min <= max; min++) {
-            let v = min + "周"
-            tempArr.push(v)
-            yxArr.push(0)
-            zsArr.push(0)
-          }
-          this.xDate = tempArr
-          for (let item of yx) {
-            tempArr.forEach(function (v, i) {
-              if (v.indexOf(item.week) != -1) {
-                yxArr[i] = item.TOTAL_FORMAL
-              }
-            })
-          }
-          for (let item of zs) {
-            tempArr.forEach(function (v, i) {
-              if (v.indexOf(item.week) != -1) {
-                zsArr[i] = item.TOTAL_FORMAL
-              }
-            })
-          }
-        }
-        if (flag == 3) {
-          yx = this.alldata.quarter
-          zs = this.alldata.quarterFormals
-          let tempArr = this.getBenJd()
-          yxArr = [0, 0, 0]
-          zsArr = [0, 0, 0]
-          this.xDate = tempArr
-          for (let item of yx) {
-            tempArr.forEach(function (v, i) {
-              if (v.indexOf(item.month) != -1) {
-                yxArr[i] = item.TOTAL_FORMAL
-              }
-            })
-          }
-          for (let item of zs) {
-            tempArr.forEach(function (v, i) {
-              if (v.indexOf(item.month) != -1) {
-                zsArr[i] = item.TOTAL_FORMAL
-              }
-            })
-          }
-        }
-        that.yxdata = yxArr
-        that.zsdata = zsArr
-        //初始化 图标
-        that.initChart()
-      },
-      getWeek(i) {  // 获取本周日期范围
-        let now = new Date();
-        let firstDay = new Date(now - (now.getDay() - 1 ) * 86400000);
-        firstDay.setDate(firstDay.getDate() + i);
-        let mon = Number(firstDay.getMonth()) + 1;
-        return "0" + mon + "/" + firstDay.getDate();
-      },
-      getCurrentMonthFirst() {  //获取本月第一天date对象
-        var date = new Date();
-        date.setDate(1);
-        return date;
-      },
-      getCurrentMonthLast() { //获取本月最后一天date对象
-        var date = new Date();
-        var currentMonth = date.getMonth();
-        var nextMonth = ++currentMonth;
-        var nextMonthFirstDay = new Date(date.getFullYear(), nextMonth, 1);
-        var oneDay = 1000 * 60 * 60 * 24;
-        return new Date(nextMonthFirstDay - oneDay);
-      },
-      getYearWeek(date1){  //获取当前date对象为全年第几周
-        var today = date1;
-        var firstDay = new Date(today.getFullYear(), 0, 1);
-        var dayOfWeek = firstDay.getDay();
-        var spendDay = 1;
-        if (dayOfWeek != 0) {
-          spendDay = 7 - dayOfWeek + 1;
-        }
-        firstDay = new Date(today.getFullYear(), 0, 1 + spendDay);
-        var d = Math.ceil((today.valueOf() - firstDay.valueOf()) / 86400000);
-        var result = Math.ceil(d / 7);
-        return result + 1;
-      },
-      getBenJd () {  //获取本季度的月份
-        let date = new Date()
-        let m = date.getMonth() + 1
-        if (m == 1 || m == 2 || m == 3) {
-          return ['1月', '2月', '3月']
-        }
-        if (m == 4 || m == 5 || m == 6) {
-          return ['4月', '5月', '6月']
-        }
-        if (m == 7 || m == 8 || m == 9) {
-          return ['7月', '8月', '9月']
-        }
-        if (m == 10 || m == 11 || m == 12) {
-          return ['10月', '11月', '12月']
-        }
-        return ['1月', '2月', '3月']
       }
     },
    

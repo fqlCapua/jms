@@ -275,7 +275,7 @@
 }
 #myaccount .jms .jms-rq .jms-rq-item{
 	float: left;
-	width: 33.33%;
+	width: 25%;
 	height: 0.76rem;
 	text-align: center;
 }
@@ -301,6 +301,7 @@
 	border: 0.02rem solid #e8f2fd;
 	border-radius: 0.1rem;
 	padding-top: 0.24rem;
+	margin-bottom: 0.2rem;
 }
 #myaccount .jms .jms-map .jms-map-con1{
 	height: 3.5rem;
