@@ -201,28 +201,27 @@
       </div>
 
      <div class="payForm" v-show="payBoxStatus" >
-        <mt-header title="发起缴费">
-         <mt-button @click="payBoxHide"  icon="back" slot="left">返回</mt-button>
-         
-         </mt-header>
+          <mt-header title="发起缴费">
+             <mt-button @click="payBoxHide"  icon="back" slot="left">返回</mt-button>
+          </mt-header>
         <div class="payBody">
-          <mt-field label="代理商类型:" readonly type="text" >{{store[jmsinfo.type-1]}}</mt-field>
-          <mt-field label="签约类型:" readonly type="text" value="">{{["个人","公司"][jmsinfo.storeType-1]}}</mt-field>
-          <mt-field label="代理区域:" readonly type="text">{{jmsinfo.storeAreaDescribe}}</mt-field>
-          <mt-field label="姓名:" readonly type="text" >{{jmsinfo.name}}</mt-field>
-          <mt-field label="联系电话:" readonly type="text"  slot="left">{{jmsinfo.mobile}}</mt-field>
-          <mt-field label="缴费类型:" readonly >
-             <select class="selectPay" readonly  v-model="receiveProject">
+          <mt-field label="代理商类型:"                 readonly type="text" >{{store[jmsinfo.type-1]}}</mt-field>
+          <mt-field label="签约类型:"                   readonly type="text" value="">{{["个人","公司"][jmsinfo.storeType-1]}}</mt-field>
+          <mt-field label="代理区域:"                   readonly type="text">{{jmsinfo.storeAreaDescribe}}</mt-field>
+          <mt-field label="姓名:"        v-model="payer"      readonly type="text" >{{jmsinfo.name}}</mt-field>
+          <mt-field label="联系电话:"                   readonly type="text"  slot="left">{{jmsinfo.mobile}}</mt-field>
+          <mt-field label="缴费类型:"                   readonly>
+             <select class="selectPay"   v-model="receiveProject">
                         <option v-for="(item,index) in jiaofeiType" v-bind:value="item.id" :key="index">{{item.name}}</option>
 							</select>
           </mt-field>
-          <mt-field label="缴费金额:" type="text" placeholder="请输入缴费金额"></mt-field>
-         
-          <mt-radio  v-model="value" :options="['线上支付','线下支付']"></mt-radio>
-
-          
-      <span  class="payBtn" >确定</span>
-       <span class="payBtn"  >取消</span>
+          <mt-field label="缴费金额:" v-model="moneySum" type="text" placeholder="请输入缴费金额(万元)">
+              
+          </mt-field>
+          <mt-radio  v-model="pType" :options="pTypeBox"></mt-radio>
+               <span  class="payBtn" @click="goPayByType">确定</span>
+               <span class="payBtn"  @click="payBoxHide">取消</span>
+               
         </div>
        
      </div>
@@ -254,7 +253,7 @@ import AlertAsk from "@/components/alertask";
 import AlertSuc from "@/components/alertsuc";
 import Vue from "vue";
 import qs from "qs";
-import { Header,Button , Field, Radio, Toast, MessageBox } from "mint-ui";
+import { Header, Button, Field, Radio, Toast, MessageBox } from "mint-ui";
 export default {
   data() {
     return {
@@ -264,9 +263,11 @@ export default {
         back: 1,
         state: 1
       },
+      options:[],
       store: ["二级代理商", "一级代理商"],
       jiaofeiType: [],
       pType: "1",
+      pTypeBox:[{label:'线上支付',value:'1'},{label:'线下支付',value:'2'}],
       receiveProject: "1",
       payBoxStatus: false, //发起缴费
       paymentInfo: {},
@@ -301,8 +302,13 @@ export default {
       asflag: false, //成功弹窗
       changeObj: {}, //更改状态参数,
       agencyBox: [],
-      payType: [],
-      imgArr: []
+      
+      imgArr: [],
+      //缴费
+
+      payer:"",
+      moneySum:"",
+      pType:"1",
     };
   },
   components: {
@@ -316,13 +322,13 @@ export default {
     Header,
     Field,
     Radio,
-    Button 
+    Button
   },
   computed: {},
   mounted: function() {
     //意向加盟商id
     let that = this;
-
+     
     if (that.$route.params.storeCode == undefined) {
       that.storeCode = sessionStorage.getItem("storeCode");
     } else {
@@ -331,7 +337,7 @@ export default {
     var data = this.getStatus(10011);
     data.then(
       res => {
-        console.log(res);
+       
         this.payType = res;
       },
       err => {
@@ -342,7 +348,6 @@ export default {
     data.then(
       res => {
         this.jiaofeiType = res;
-         
       },
       err => {
         alert(err);
@@ -356,6 +361,40 @@ export default {
     that.getYwjlName();
   },
   methods: {
+    //缴费
+    goPayByType(){
+       let _that=this;
+      if(this.pType==1){
+        let form=new Object();
+        form.moneySum=_that.moneySum;
+        form.payer=_that.payer;
+        form.receiveProject=_that.receiveProject;
+
+        if(!this.moneySum){
+        alert("请输入缴费金额");
+          return false;
+        }
+         fetch(host+"/agent/store/addPayFee",{
+           method:"POST",
+           headers: {
+             "Content-Type": "application/json"
+           },
+           body:JSON.stringify(form)
+         }).then(res=>res.text())
+         .then(res=>{
+           var res=JSON.parse(res);
+           if(res.status==1){
+            _that.payBoxHide(); 
+           }
+          
+            Toast(res.message);
+         })
+
+      }else if(this.pType==2){
+        
+        this.$router.push({path:"/payment"});
+      }
+    },
     payBoxShow() {
       this.payBoxStatus = true;
     },
@@ -604,16 +643,19 @@ export default {
 .payBody {
   margin: 30px auto;
 }
-.selectPay{
-  line-height:0.48rem;
-  font-size:0.3rem;
-  
-}.selectPay:active{
-    border: none;
-}
-.radioPay{
+.selectPay {
+  line-height: 0.48rem;
+  font-size: 0.3rem;
+  padding:2px 15px;
+  border-radius:5px;
+  background-color: #fff;
+  }
+ .mint-header{
+   background-color:#4990E2;
+   height: 0.96rem;
+   line-height: 0.96rem !important;
+   font-size: 0.33rem;
+ }
  
-  border: 1px solid #000;
-}
 </style>
 

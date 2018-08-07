@@ -61,20 +61,21 @@
           this.pwd = ''
           return false
         }
- let _that=this;
+  let _that=this;
   let formdata=new FormData();
       formdata.append("mobile",this.phone);
       formdata.append("password",this.pwd);
       
     fetch(host+"/agent/proxy/fastLogin",{
-        method:'POST',
-    	 	body:formdata
+         method:'POST',
+         body: formdata,
+      
     	 }).then((res)=>res.text())
     	   .then((res)=>{
-    	   	var res=JSON.parse(res);
+    	   	var res=JSON.parse(res); 
       	 	if (res.status == 1) {
     
-            Toast('登录成功')
+              Toast('登录成功')
               _that.$store.dispatch('userLogin',JSON.parse(res.data));
               _that.addSession("us",res.data);
  
