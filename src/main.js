@@ -10,7 +10,7 @@ import BaiduMap from 'vue-baidu-map'
 Vue.use(Mint)
 Vue.use(BaiduMap, {ak: 'eb10ef559453fdd03e2d78d2581fa747'})
 
-
+ 
 Vue.config.productionTip = false;
 //rem布局适配
 if ('addEventListener' in document) {
@@ -94,6 +94,8 @@ Vue.prototype.checkArea=function(areaId){
   return t;
  
 };
+ 
+         
 new Vue({
   el: '#app',
   router,

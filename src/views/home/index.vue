@@ -5,7 +5,19 @@
         <my-header :headerParam="headerParam" class="bgctran"></my-header>
         <!---->
         <div id="index">
-          <div class="index-top">
+          <div class="banner">
+          <mt-swipe :show-indicators="false" :auto="4000">
+            <mt-swipe-item v-for="(item,index) in SwipeArr" :key="index" class="imgitem">
+              <img :src="item.bannerPath"  alt="">
+             
+             
+            </mt-swipe-item>
+        
+           </mt-swipe>
+            
+          </div>
+         
+          <!-- <div class="index-top">
             <div class="index-top-data clearfix">
               <div class="item">
                 <p class="t1">本月意向<span class="bigNum">&nbsp;&nbsp;{{myJms.intention}}</span></p>
@@ -34,7 +46,7 @@
                 </p>
               </div>
             </div>
-          </div>
+          </div> -->
           <!--中间部分-->
           <!-- <div class="index-center clearfix">
             <router-link :to="{path:'/editJmsInfo'}" class="item">
@@ -53,20 +65,24 @@
             </router-link>
           </div> -->
         </div>
+           <div id="iconfont">
+                     <a class="iconfont icon-tongzhi"></a>
+                     <a class="content_des">通知内容这是一个通知内容</a> 
+              </div>
         <div>
          
           <!-- 2018/7/30修改样式 -->
           <div id="listBox">
             <div class="intent_title">{{intent_title}}</div>
               <ul class="intent levelBox">
-                  <li @click="goyxjmslist('2')">一级代理商</li>
-                  <li @click="goyxjmslist('1')">二级代理商</li>
+                  <li @click="goyxjmslist('2')">形象店</li>
+                  <li @click="goyxjmslist('1')">体验店</li>
                   <li @click="goeditJmsInfo()">新增代理商</li>
               </ul>
               <div class="offical_title">{{offical_title}}</div>
               <ul class="offical levelBox">
-                  <li  @click="gojmslist('2')">一级代理商</li>
-                  <li  @click="gojmslist('1')">二级代理商</li>
+                  <li  @click="gojmslist('2')">形象店</li>
+                  <li  @click="gojmslist('1')">体验店</li>
               </ul>
           </div>
            
@@ -81,22 +97,40 @@
 <script>
 import MyFooter from "@/components/footer";
 import MyHeader from "@/components/header";
-import Vue from 'vue';
+import Vue from "vue";
 import { fetchGetData, fetchPostData, host } from "@/api";
+import { Swipe, SwipeItem, Toast } from "mint-ui";
 export default {
-  data(){
-    return{
+  data() {
+    return {
       footerIndex: 1,
+      imgPre: "http://oss.miaoyouche.cn/view",
       headerParam: {
-        title:"首页",
+        title: "首页",
         setting: 0,
         back: 0
       },
-      intent_title:"意向代理商",
-      offical_title:"正式代理商",
-      myJms: {
-         
-      },
+      SwipeArr: [
+        {
+          id: 1,
+          bannerPath:  "http://demo.htmleaf.com/1805/201805151442/img/end_of_days_by_tacosauceninja-dar6in5.jpg",
+          des: "111"
+        },
+        {
+          id: 2,
+          bannerPath:  "http://demo.htmleaf.com/1805/201805151442/img/scorched_earth_by_arcipello-d5118nz.jpg",
+          des: "222"
+        },
+        {
+          id: 3,
+          bannerPath:  "http://demo.htmleaf.com/1805/201805151442/img/scorched_earth_by_arcipello-d5118nz.jpg",
+          des: "3333"
+        }
+      ],
+
+      intent_title: "意向代理商",
+      offical_title: "正式代理商",
+      myJms: {},
       wills: {
         很感兴趣: 0,
         感兴趣: 0,
@@ -118,7 +152,7 @@ export default {
       }
     };
   },
-  components: { MyFooter, MyHeader },
+  components: { MyFooter, MyHeader, Swipe, SwipeItem },
   methods: {
     //顶部统计形象店体验店总数统计
     getMyJms() {
@@ -126,271 +160,43 @@ export default {
         .then(res => res.text())
         .then(res => {
           var res = JSON.parse(res);
-          
           if (res.status == 1) {
             this.myJms = res.data;
-             
           }
         });
     },
-    goyxjmslist(){
-      if(arguments.length){
-          this.addSession("listStatus",arguments[0]);
-          this.$router.push({path:"/yxjmslist"})
+    goyxjmslist() {
+      if (arguments.length) {
+        this.addSession("listStatus", arguments[0]);
+        this.$router.push({ path: "/yxjmslist" });
       }
     },
-    gojmslist(){
-      if(arguments.length){
-         this.addSession("listStatus",arguments[0]);
-      this.$router.push({path:"/jmslist"})
+    gojmslist() {
+      if (arguments.length) {
+        this.addSession("listStatus", arguments[0]);
+        this.$router.push({ path: "/jmslist" });
       }
     },
-    goeditJmsInfo(){
-      this.$router.push({path:"/editJmsInfo"});
+    goeditJmsInfo() {
+      this.$router.push({ path: "/editJmsInfo" });
     },
-    loadFutureCusByWish() {
-      let that = this;
-      fetch(host + "/agent/proxy/storeCountGraph", { method: "GET" })
+    getBanner() {
+      let source = 1; //1,销售端 2,商家端
+      let _that = this;
+      fetch(host + "/agent/ntc/appBanner?source=1", {
+        method: "GET",
+        headers: {
+          "x-token": this.$store.state.token
+        }
+      })
         .then(res => res.text())
         .then(res => {
           var res = JSON.parse(res);
-          console.table(res.data);
+    
           if (res.status == 1) {
-            that.yxjmsArr.push(
-              res.data.agentStatus1,
-              res.data.agentStatus2,
-              res.data.agentStatus4,
-              res.data.agentStatus4
-            );
-            that.jmsArr.push(res.data.openStatus1, res.data.openStatus1);
-
-            let myChart = echarts.init(document.getElementById("future-cus"));
-            let xData = that.willList.map(item => item.name);
-            let option = {
-              title: {
-                text: "意向代理商统计",
-                left: "center",
-                textStyle: {
-                  fontWeight: "normal"
-                }
-              },
-              xAxis: {
-                data: that.yxfield,
-                type: "category",
-                axisTick: {
-                  show: false
-                }
-              },
-              yAxis: {
-                name: "单位：个",
-                type: "value",
-                splitLine: {
-                  show: false
-                },
-                minInterval: 1
-              },
-              grid: {
-                top: "25%",
-                left: "3%",
-                right: "4%",
-                bottom: "3%",
-                containLabel: true
-              },
-              series: [
-                {
-                  name: "正式代理商",
-                  type: "bar",
-                  barWidth: "40%",
-                  label: {
-                    normal: {
-                      position: "inner",
-                      formatter: e => {
-                        if (e.data.value === 0) return "";
-                        return e.data.name + "\n" + e.data.value;
-                      }
-                    }
-                  },
-                  itemStyle: {
-                    normal: {
-                      color: new echarts.graphic.LinearGradient(
-                        0,
-                        0,
-                        0,
-                        1,
-                        [
-                          {
-                            offset: 0,
-                            color: "#00b0ff"
-                          },
-                          {
-                            offset: 0.8,
-                            color: "#7052f4"
-                          }
-                        ],
-                        false
-                      )
-                    }
-                  },
-                  data: that.yxjmsArr
-                }
-              ]
-            };
-            myChart.setOption(option);
-
-            let myChart1 = echarts.init(document.getElementById("now-cus"));
-
-            let option1 = {
-              title: {
-                text: "正式代理商统计",
-                left: "center",
-                textStyle: {
-                  fontWeight: "normal"
-                }
-              },
-              xAxis: {
-                data: that.field,
-                type: "category",
-                axisTick: {
-                  show: false
-                },
-                axisLabel: {
-                  rotate: 30
-                }
-              },
-              yAxis: {
-                name: "单位：个",
-                type: "value",
-                splitLine: {
-                  show: false
-                },
-                minInterval: 1
-              },
-              grid: {
-                top: "25%",
-                left: "3%",
-                right: "4%",
-                bottom: "3%",
-                containLabel: true
-              },
-              series: [
-                {
-                  name: "体验店",
-                  type: "bar",
-                  barWidth: "40%",
-                  label: {
-                    normal: {
-                      position: "inner",
-                      formatter: e => {
-                        if (e.data.value === 0) return "";
-                        return e.data.name + "\n" + e.data.value;
-                      }
-                    }
-                  },
-                  itemStyle: {
-                    normal: {
-                      color: new echarts.graphic.LinearGradient(
-                        0,
-                        0,
-                        0,
-                        1,
-                        [
-                          {
-                            offset: 0,
-                            color: "#00b0ff"
-                          },
-                          {
-                            offset: 0.8,
-                            color: "#7052f4"
-                          }
-                        ],
-                        false
-                      )
-                    }
-                  },
-                  data: that.jmsArr
-                }
-              ]
-            };
-            myChart1.setOption(option1);
+            _that.SwipeArr = res.data;
           }
         });
-    },
-    loadMerByStatus() {
-      let that = this;
-      //            fetchPostData(host+'/api/formalsMerByMerStatus',{}).then((data) => {
-      //              if(data.code == 0){
-      //                for(let key in that.status) {
-      //                  data.list.forEach(item => {
-      //                    if(item['正式加盟商状态'] === key) {
-      //                      that.status[key] = item["人数"]
-      //                    }
-      //                  });
-      //                }
-      //                let myChart = echarts.init(document.getElementById('now-cus'));
-      //                let xData = that.statusList.map(item => item.name);
-      //                let option = {
-      //                  title: {
-      //                    text: '正式加盟商统计',
-      //                    left: 'center',
-      //                    textStyle: {
-      //                      fontWeight: 'normal'
-      //                    }
-      //                  },
-      //                  xAxis: {
-      //                      data: xData,
-      //                      type: 'category',
-      //                      axisTick: {
-      //                        show: false
-      //                      },
-      //                      axisLabel: {
-      //                        rotate: 30
-      //                      }
-      //                  },
-      //                  yAxis: {
-      //                    name: "单位：个",
-      //                    type: 'value',
-      //                    splitLine: {
-      //                      show: false
-      //                    },
-      //                    minInterval: 1
-      //                  },
-      //                  grid: {
-      //                    top: '25%',
-      //                    left: '3%',
-      //                    right: '4%',
-      //                    bottom: '3%',
-      //                    containLabel: true
-      //                  },
-      //                  series: [{
-      //                    name: '正式加盟商',
-      //                    type: 'bar',
-      //                    barWidth: '40%',
-      //                    label: {
-      //                      normal: {
-      //                        position: 'inner',
-      //                        formatter: e => {
-      //                          if(e.data.value === 0) return '';
-      //                          return e.data.name + '\n' + e.data.value;
-      //                        }
-      //                      }
-      //                    },
-      //                    itemStyle:{
-      //                        normal:{
-      //                            color:new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-      //                                offset: 0,
-      //                                color: '#00b0ff'
-      //                            }, {
-      //                                offset: 0.8,
-      //                                color: '#7052f4'
-      //                            }], false)
-      //                        }
-      //                    },
-      //                    data: that.statusList
-      //                  }]
-      //                }
-      //                myChart.setOption(option);
-      //              }
-      //            })
     }
   },
   mounted: function() {
@@ -399,27 +205,23 @@ export default {
     var data = this.getStatus(10034);
     data.then(
       function(value) {
-       value.map(e=>vm.yxfield.push(e.name));
-  
-        
+        value.map(e => vm.yxfield.push(e.name));
       },
       function(err) {
         console.log(err);
       }
     );
-     var data = this.getStatus(10035);
+    var data = this.getStatus(10035);
     data.then(
       function(value) {
-       value.map(e=>vm.field.push(e.name));
-  
-        
+        value.map(e => vm.field.push(e.name));
       },
       function(err) {
         console.log(err);
       }
     );
     this.getMyJms();
- 
+    //this.getBanner();
   },
   computed: {
     willList() {
@@ -455,46 +257,45 @@ export default {
   height: 3rem;
   margin-top: 0.5rem;
 }
-#listBox{ 
- padding: 0 20px;
-  &>div{
-    line-height:0.7rem;
-    font-size:5vw;
+#listBox {
+  padding: 0 20px;
+  & > div {
+    line-height: 0.7rem;
+    font-size: 5vw;
     font-weight: bold;
     color: #333333;
   }
-  ul{
-   
-    height:3rem;
+  ul {
+    height: 3rem;
   }
 }
-.yxstores{
+.yxstores {
   display: inline-block;
-  width:45%;
-  text-align:center;
-  padding-top:10px;
-    & div:nth-child(1){
-        font-size:0.3rem;
-        font-weight:500;
-        line-height:0.6rem;
-    }
-    & div:nth-child(2){
-        font-size:0.28rem;
-        font-weight:400;
-        line-height:0.6rem;
-    }
+  width: 45%;
+  text-align: center;
+  padding-top: 10px;
+  & div:nth-child(1) {
+    font-size: 0.3rem;
+    font-weight: 500;
+    line-height: 0.6rem;
+  }
+  & div:nth-child(2) {
+    font-size: 0.28rem;
+    font-weight: 400;
+    line-height: 0.6rem;
+  }
 }
-.t1{
-   font-size:0.35rem;
-.bigNum{
-      display: inline-block;
-      font-size:0.48rem;
-    }
+.t1 {
+  font-size: 0.35rem;
+  .bigNum {
+    display: inline-block;
+    font-size: 0.48rem;
+  }
 }
- 
-.levelBox{
-  font-size:0.32rem;
-  li{
+
+.levelBox {
+  font-size: 0.32rem;
+  li {
     text-align: center;
     border: 1px solid #000;
     display: inline-block;
@@ -502,4 +303,29 @@ export default {
     line-height: 1.2rem;
   }
 }
+.banner {
+  height: 28vh;
+}
+.mint-swipe-item img {
+  width: 100%;
+  height: 100%;
+}
+
+ 
+  .iconfont {
+     vertical-align: top;
+      display: inline-block;
+    margin-left:20px;
+    color:#DD5246;
+    font-size: 0.45rem;
+    line-height:0.8rem;
+  }
+  .content_des {
+    vertical-align: top;
+    display: inline-block;    
+      color: #333333;
+    font-size: 0.28rem;
+        line-height:0.8rem;
+  }
+ 
 </style>

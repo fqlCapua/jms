@@ -17,6 +17,12 @@
             <span class="icon"></span>
           </div>
         </div>
+         
+          <div class="line-con1 clearfix">
+            <span class="t1">版本号</span>
+            <span class="  version">V1.0</span>
+          </div>
+        
         <p class="quitlogin margin-center" @click="quit">退出登录</p>
       </div>
     </div>
@@ -56,3 +62,31 @@
     }
   }
 </script>
+<style lang="less" scoped>
+ 
+.line-con1{
+    width: 100%;
+    height: 100%;
+    padding-left: 0.3rem;
+    font-size: 0.32rem;
+    color: #333333;
+    border-bottom: 0.02rem solid #F2F2F2;
+   & span:nth-child(1){
+ 
+    display: inline-block;
+    font-size: 0.32rem;
+    line-height: 1.27rem;
+    width:49%;
+    
+   }
+   .version{
+     width: 49%;
+     display: inline-block;
+     line-height: 1.27rem;
+      text-align: end;
+      color: #333333;
+      padding-right: 15px;
+   }
+}
+</style>
+

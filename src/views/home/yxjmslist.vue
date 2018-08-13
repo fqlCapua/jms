@@ -20,18 +20,18 @@
 				   <div class="item" @click="getYxJms('1','待缴费')">
 						<span class="text" :class="[selectIndex==1?'c1':'']">待缴费</span>
 					</div>
-					<div class="item" @click="getYxJms('2','审核中')">
+					<div class="item" @click="getYxJms('2','审核')">
 						<span class="text" :class="[selectIndex==2?'c1':'']">审核中</span>
 					</div>
-					<div class="item" @click="getYxJms('3','签约中')">
-						<span class="text" :class="[selectIndex==3?'c1':'']">签约中</span>
+					<div class="item" @click="getYxJms('3','签约')">
+						<span class="text" :class="[selectIndex==3?'c1':'']">签约</span>
 					</div>
-					<div class="item" @click="getYxJms('4','签约审核中')">
+					<!-- <div class="item" @click="getYxJms('4','签约审核中')">
 						<span class="text" :class="[selectIndex==4?'c1':'']">签约审核中</span>
 					</div>
 					<div class="item" @click="getYxJms('5','已取消')">
 						<span class="text" :class="[selectIndex==5?'c1':'']">已取消</span>
-					</div>
+					</div> -->
 
 					</div>
 				</div>

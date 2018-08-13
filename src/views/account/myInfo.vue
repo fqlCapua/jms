@@ -13,13 +13,13 @@
           <div class="line">
             <div class="line-con clearfix">
               <span class="t1">姓名</span>
-              <span class="t2">{{userInfo.name}}</span>
+              <span class="t2">{{userInfo.realName}}</span>
             </div>
           </div>
           <div class="line">
             <div class="line-con clearfix">
               <span class="t1">工号</span>
-              <span class="t2">{{userInfo.userNum}}</span>
+              <span class="t2">{{userInfo.jobNumber}}</span>
             </div>
           </div>
           <div class="line">
@@ -37,7 +37,7 @@
           <div class="line">
             <div class="line-con clearfix">
               <span class="t1">联系电话</span>
-              <span class="t2">{{userInfo.mobile}}</span>
+              <span class="t2">{{userInfo.jobNumber}}</span>
             </div>
           </div>
         </div>
@@ -61,13 +61,14 @@
         components: {MyHeader},
         methods: {
           getUserInfo () {  //用户信息
-            fetchPostData(host+'/api/queryUser',{}).then((data) => {
-              if(data.code == 0){
-                this.userInfo = data.user;
-              }else{
+            // fetchPostData(host+'/api/queryUser',{}).then((data) => {
+            //   if(data.code == 0){
+            //     this.userInfo = data.user;
+            //   }else{
 
-              }
-            })
+            //   }
+            // })
+            this.userInfo=JSON.parse(this.getSession("us"));
           },
         },
         mounted: function () {

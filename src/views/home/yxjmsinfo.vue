@@ -206,9 +206,9 @@
           </mt-header>
         <div class="payBody">
           <mt-field label="代理商类型:"                 readonly type="text" >{{store[jmsinfo.type-1]}}</mt-field>
-          <mt-field label="签约类型:"                   readonly type="text" value="">{{["个人","公司"][jmsinfo.storeType-1]}}</mt-field>
+          <mt-field label="签约类型:"                   readonly type="text"  >{{["个人","公司"][jmsinfo.storeType-1]}}</mt-field>
           <mt-field label="代理区域:"                   readonly type="text">{{jmsinfo.storeAreaDescribe}}</mt-field>
-          <mt-field label="姓名:"        v-model="payer"      readonly type="text" >{{jmsinfo.name}}</mt-field>
+          <mt-field label="姓名:"          readonly >{{payer}}</mt-field>
           <mt-field label="联系电话:"                   readonly type="text"  slot="left">{{jmsinfo.mobile}}</mt-field>
           <mt-field label="缴费类型:"                   readonly>
              <select class="selectPay"   v-model="receiveProject">
@@ -355,7 +355,8 @@ export default {
     );
 
     that.getYxJmsInfo();
-
+ 
+  
     that.showlevelStatus();
     that.getJmschangeList();
     that.getYwjlName();
@@ -544,6 +545,7 @@ export default {
             _that.imgArr = res.data.listSysFileManage;
             _that.addSession("Allinfo", JSON.stringify(res.data));
             _that.addSession("info", JSON.stringify(res.data.storeInfo));
+            _that.payer=res.data.storeInfo.name;
           }
         });
     },

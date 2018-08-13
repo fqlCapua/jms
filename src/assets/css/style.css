@@ -67,9 +67,10 @@
 #footer .item{
 	float: left;
 	display: block;
-	width: 33.33%;
+	width:49%;
 	height: 100%;
 	padding-top: 0.2rem;
+	letter-spacing: 2px;
 }
 #footer .item .icon{
 	display: block;
@@ -463,6 +464,7 @@
 	line-height: 1.27rem;
 }
 #set .line .line-con .icon{
+	font-size:0.32rem;
 	float: right;
 	display: inline-block;
 	width: 0.42rem;
@@ -873,6 +875,7 @@
 	padding: 0 0.25rem;
 }
 .jmslist .list .jms-item{
+	position: relative;
 	display: block;
 	width: 100%;
 	height: 3.34rem;
