@@ -6,10 +6,17 @@
        <p class="dz-name">{{jsminfo.name}}</p>
        <p class="tel">{{jsminfo.managerMobile}}</p>
        <p class="qy-time">提交时间：{{jsminfo.gmtCreate | splitTime}}</p>
-       <div class="feeStatus" v-show="selectIndex==''">{{formateAllStatus(jsminfo.gatherStatus)}}</div>
-       <div class="feeStatus" v-show="selectIndex==1">{{"待缴费 "+agentStatusArr[jsminfo.agentStatus-1].name}}</div>
-       <div class="feeStatus" v-show="selectIndex==2"  >{{formateFeeStatus(jsminfo.gatherStatus)}}</div>
-       <div class="feeStatus" v-show="selectIndex==3">{{qyStatusArr[jsminfo.signStatus-1].name}}</div>
+       <div v-show="jmsflag=='yxjms'">
+         <div class="feeStatus" v-show="selectIndex==''">{{formateAllStatus(jsminfo.gatherStatus)}}</div>
+         <div class="feeStatus" v-show="selectIndex==1">{{"待缴费 "+agentStatusArr[jsminfo.agentStatus-1].name}}</div>
+         <div class="feeStatus" v-show="selectIndex==2"  >{{formateFeeStatus(jsminfo.gatherStatus)}}</div>
+         <div class="feeStatus" v-show="selectIndex==3">{{qyStatusArr[jsminfo.signStatus-1].name}}</div>
+         <div class="feeStatus" v-show="selectIndex==3">{{qyStatusArr[jsminfo.signStatus-1].name}}</div>
+       </div>
+       <div  v-show="jmsflag=='jms'">
+          <div class="feeStatus"  v-show="selectIndex==1">已开业</div>
+          <div class="feeStatus" v-show="selectIndex==2">待开业</div>
+       </div> 
      </router-link>
    
    </div>

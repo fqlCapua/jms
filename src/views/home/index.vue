@@ -323,9 +323,9 @@ export default {
   .content_des {
     vertical-align: top;
     display: inline-block;    
-      color: #333333;
+    color: #333333;
     font-size: 0.28rem;
-        line-height:0.8rem;
+    line-height:0.8rem;
   }
  
 </style>

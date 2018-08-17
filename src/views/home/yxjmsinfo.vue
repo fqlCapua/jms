@@ -1,33 +1,32 @@
 <template>
   <div>
     <div id="wapper">
-      <!---->
+      
       <my-header :headerParam="headerParam">
       
       </my-header>
-      <!---->
-
+    
+ 
       
       <div id="jmsinfo">
         <div class="jmsinfo-title clearfix">
-                   商户信息
-          <!-- <span class="xq" @click="openshow('msgflag')"
-                v-if="jmschangelist.length>0">{{jmsstates[jmschangelist[0].status - 1]}}</span>
-          <span class="xq" v-else></span> -->
+                   商户信息 
+        
         </div>
-        <div class="item clearfix">
+        
+       <div class="item clearfix">
           <span class="item-flag">加盟商编号：</span>
           <div class="item-con">
-            <p class="text">{{jmsinfo.storeCode}}</p>
+            <p class="text" >{{jmsinfo.storeCode}}</p>
           </div>
         </div>
-        <div class="item clearfix">
+         <div class="item clearfix">
           <span class="item-flag">代理商类型：</span>
           <div class="item-con">
             <p class="text">{{store[jmsinfo.type-1]}}</p>
           </div>
         </div>
-        <div class="item clearfix">
+      <div class="item clearfix">
           <span class="item-flag">商户类型：</span>
           <div class="item-con">
             <p class="text">{{storeType[jmsinfo.storeType]}}</p>
@@ -86,12 +85,7 @@
             <p class="text">{{jmsinfo.manager}}</p>
           </div>
         </div>
-        <!--<div class="item clearfix">
-          <span class="item-flag">上级经理：</span>
-          <div class="item-con">
-            <p class="text">{{jmsinfo.sjjl}}</p>
-          </div>
-        </div>-->
+      
         <div class="item clearfix">
           <span class="item-flag">&#x3000;&#x3000;备注：</span>
           <div class="item-con">
@@ -104,18 +98,7 @@
             <p class="text">{{jmsinfo.gmtCreate	}}</p>
           </div>
         </div>
-        <!-- <div class="item clearfix" v-show="agencyStatus==1">
-          <span class="item-flag">状态修改时间：</span>
-          <div class="item-con">
-            <p class="text">{{jmsinfo.gmtModify}}</p>
-          </div>
-        </div>
-        <div class="item clearfix" v-show="openStatus==2">
-          <span class="item-flag">开业时间：</span>
-          <div class="item-con">
-            <p class="text">{{jmsinfo.gmtOpen}}</p>
-          </div>
-        </div> -->
+        
         <div class="item clearfix" >
           <span class="item-flag">签约时间：</span>
           <div class="item-con">
@@ -146,38 +129,44 @@
         </div>
       
          
-        <div v-show="paymentInfo.length" >
+   <!--  -->    <div v-show="paymentInfo.length" >
           <div class="split"></div>
           <div class="item historyTitle  clearfix"   >
             <span class="item-flag"  >缴费信息</span>     
          </div>
         
-        <div class="clearfix historyItem" v-for="(item,index) in paymentInfo" :key="index"  >
-             <div>
-                <span>缴费金额</span>
+          <div class="clearfix historyItem" v-for="(item,index) in paymentInfo" :key="index"  >
+            <div>
+                <span>状态</span>
+                <span>{{item.moneySum}}万元</span>
+            </div>
+            <div>
+                <span>说明</span>
                 <span>{{item.moneySum}}</span>
             </div>
-             <div  v-show="item.payType!=null">
-                <span>缴费方式:</span>
-                <span>{{payType[item.payType-1].name}}</span>
+             <div>
+                <span>打款金额</span>
+                <span>{{item.moneySum}}万元</span>
             </div>
+            <div  v-if="item.payType!=null">
+                <span>打款方式:</span>
+                <span>{{payType[item.payType-1].name}}</span>
+            </div>   
+             
              <div  v-show="item.gmtPay!=null">
-                <span>缴费时间:</span>
+                <span>打款时间:</span>
                 <span> {{item.gmtPay}}</span>
             </div>
-             <div v-show="item.payType!=null">
+             <div v-show="item.gmtApply!=null">
                 <span>审核时间:</span>
-                <span> {{item.payType}}</span>
+                <span> {{item.gmtApply}}</span>
             </div>
-            <div v-show="jmsinfo.gmtSign!=null">
-                <span>签约时间:</span>
-                <span>{{jmsinfo.gmtSign}}</span>
-            </div>
-        </div>
+            
+        </div>  
         </div>
          
 
-        <div class="item">
+    <div class="item">
         <span class="state changeInfoBtn"  v-show="!$route.params.status"   @click="openshow('stateflag')">状态追踪</span> 
         <router-link v-show="false" :to="{name:'editJmsInfo',params:{storeCode:this.jmsinfo.storeCode,jmsInfo:this.jmsinfo,hisPage:'change'}}">
           <span class="changeInfoBtn"  >修改资料</span>
@@ -190,7 +179,7 @@
             <span class="changeInfoBtn"> 提交补充资料 </span>
           </div>
         </router-link>
-          <!-- <div class="changeInfoBtn" @click="gochangeInfo"></div> -->
+    
         
         </div>
         <div class="item"   v-show="false">
@@ -205,9 +194,9 @@
              <mt-button @click="payBoxHide"  icon="back" slot="left">返回</mt-button>
           </mt-header>
         <div class="payBody">
-          <mt-field label="代理商类型:"                 readonly type="text" >{{store[jmsinfo.type-1]}}</mt-field>
-          <mt-field label="签约类型:"                   readonly type="text"  >{{["个人","公司"][jmsinfo.storeType-1]}}</mt-field>
-          <mt-field label="代理区域:"                   readonly type="text">{{jmsinfo.storeAreaDescribe}}</mt-field>
+          <mt-field label="代理商类型:"     readonly type="text" >{{store[jmsinfo.type-1]}}</mt-field>
+          <mt-field label="商户类型:"      readonly type="text"  >{{["个人","公司"][jmsinfo.storeType-1]}}</mt-field>
+          <mt-field label="代理区域:"      readonly type="text">{{jmsinfo.storeAreaDescribe}}</mt-field>
           <mt-field label="姓名:"          readonly >{{payer}}</mt-field>
           <mt-field label="联系电话:"                   readonly type="text"  slot="left">{{jmsinfo.mobile}}</mt-field>
           <mt-field label="缴费类型:"                   readonly>
@@ -264,18 +253,18 @@ export default {
         state: 1
       },
       options:[],
-      store: ["二级代理商", "一级代理商"],
+      store: ["体验店", "形象店"],
       jiaofeiType: [],
       pType: "1",
       pTypeBox:[{label:'线上支付',value:'1'},{label:'线下支付',value:'2'}],
       receiveProject: "1",
       payBoxStatus: false, //发起缴费
-      paymentInfo: {},
+      paymentInfo: [],
       changeHistory: [],
       agencyStatus: false,
       jmsid: "",
       storeCode: "", //路由传参加盟商id
-      jmsinfo: {}, //加盟商信息
+      jmsinfo:{}, //加盟商信息
       ywjl: "", // 业务经理
       sjjl: "", // 上级经理
       jmschangelist: [], //更改记录
@@ -338,7 +327,7 @@ export default {
     data.then(
       res => {
        
-        this.payType = res;
+        that.payType = res;
       },
       err => {
         alert(err);
@@ -358,8 +347,7 @@ export default {
  
   
     that.showlevelStatus();
-    that.getJmschangeList();
-    that.getYwjlName();
+ 
   },
   methods: {
     //缴费
@@ -370,7 +358,8 @@ export default {
         form.moneySum=_that.moneySum;
         form.payer=_that.payer;
         form.receiveProject=_that.receiveProject;
-
+        form.orderType=1;
+        form.agentCode=_that.jmsinfo.storeCode;
         if(!this.moneySum){
         alert("请输入缴费金额");
           return false;
@@ -386,9 +375,12 @@ export default {
            var res=JSON.parse(res);
            if(res.status==1){
             _that.payBoxHide(); 
+            
+              Toast(res.message);
+               window.location.reload();
            }
+        
           
-            Toast(res.message);
          })
 
       }else if(this.pType==2){
@@ -423,7 +415,7 @@ export default {
         .then(res => {
           var res = JSON.parse(res);
           if (res.status == 1) {
-            Toast("发送成功  ");
+            Toast("发送成功");
           } else {
             Toast("发送失败");
           }
@@ -540,53 +532,19 @@ export default {
           var res = JSON.parse(res);
           if (res.status == 1) {
             _that.allInfo = res.data;
+          
             _that.jmsinfo = res.data.storeInfo;
+            
             _that.paymentInfo = res.data.listAccCollections;
             _that.imgArr = res.data.listSysFileManage;
-            _that.addSession("Allinfo", JSON.stringify(res.data));
-            _that.addSession("info", JSON.stringify(res.data.storeInfo));
+            _that.addSession("Allinfo",JSON.stringify(res.data));
+            _that.addSession("info",JSON.stringify(res.data.storeInfo));
             _that.payer=res.data.storeInfo.name;
           }
         });
     },
-    getJmschangeList() {
-      // 获取加盟商更改记录
-      //      fetchGetData(host+'/api/selectByMerId/' + this.jmsid, {}).then((data) => {
-      //        if (data.code == 0) {
-      //          if (data.list.length) {
-      //            this.jmschangelist = data.list
-      //          } else {
-      //            this.jmschangelist = []
-      //          }
-      //        }
-      //      })
-    },
-    zzjms() {
-      //点击转为正式加盟商
-      //      MessageBox({
-      //        title: '',
-      //        message: '确定转为正式加盟商？',
-      //        showCancelButton: true,
-      //      }).then((data)=>{
-      //        if(data == 'confirm'){
-      //          fetchPostData(host+'/api/addMerNumber', qs.stringify({id: this.jmsid})).then((data) => {
-      //            if (data.code == 0) {
-      //              Toast({message: '操作成功', position: 'bottom'});
-      //              this.$router.back()
-      //            }
-      //          })
-      //        }
-      //      });
-    },
-    getYwjlName() {
-      //获取 业务经理的name
-      //      fetchPostData(host+'/api/queryUser', {}).then((data) => {
-      //        if (data.code == 0) {
-      //          this.ywjl = data.user.name
-      //          this.sjjl = data.user.leaderName
-      //        }
-      //      })
-    }
+ 
+    
   }
 };
 </script>
